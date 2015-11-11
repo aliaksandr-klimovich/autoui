@@ -1,2 +1,6 @@
-class Clickable(object):
+class Clickable:
+    pass
+
+
+class Fillable:
     pass

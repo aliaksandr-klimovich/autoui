@@ -1,6 +1,11 @@
-class Input(object):
-    pass
+from selenium.webdriver.remote.webelement import WebElement
 
 
-class Button(object):
+class Input(WebElement):
+    def type(self, text):
+        self.clear()
+        self.send_keys(text)
+
+
+class Button(WebElement):
     pass
