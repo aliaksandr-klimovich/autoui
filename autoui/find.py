@@ -1,12 +1,28 @@
 from selenium.webdriver.remote.webelement import WebElement
-from autoui.base import BaseSection
+
 from autoui.driver import get_driver
+from autoui.exceptions import AutoUIException
+from autoui.locators import _Locator
 
 
 class Find(object):
-    def __init__(self, element=WebElement, locator=None):
+    def __init__(self, element=WebElement, locator=None,
+                 element_init_args=None, element_init_kwargs=None):
+
         self.element = element
-        self.locator = locator
+        self.element_init_args = element_init_args if element_init_args else []
+        self.element_init_kwargs = element_init_kwargs if element_init_kwargs else {}
+
+        if locator is not None:
+            if type(locator) is _Locator or not isinstance(locator, _Locator):
+                raise AutoUIException('locator must be instance of derived class from class Locator, '
+                                      'got {}'.format(type(locator)))
+            self.by = locator.by
+            self.value = locator.value
 
     def __get__(self, instance, owner):
-        return self.element.find_element(self.element(), *self.locator)
+        finder = get_driver()
+        element = finder.find_element(self.by, self.value)
+        new_element = self.element(*self.element_init_args, **self.element_init_kwargs)
+        new_element._element = element
+        return new_element

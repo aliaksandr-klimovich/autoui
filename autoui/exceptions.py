@@ -1,0 +1,2 @@
+class AutoUIException(Exception):
+    pass

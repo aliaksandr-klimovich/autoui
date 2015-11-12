@@ -5,16 +5,18 @@ from autoui.locators import ID, XPath
 
 
 class YandexPage(BasePage):
-    url = "ya.ru"
+    url = "http://ya.ru"
     input = Find(Input, ID("text"))
     find = Find(Button, XPath('//button[@type="submit"]'))
 
     @classmethod
-    def find_text(cls, text):
-        cls.input.type(text)
-        cls.find.click()
+    def find_text(self, text):
+        self.input.type(text)
+        self.find.click()
 
 
 if __name__ == "__main__":
     YandexPage.get()
-    YandexPage.find_text("text")
+    YandexPage.input.type("text")
+    YandexPage.find.click()
+

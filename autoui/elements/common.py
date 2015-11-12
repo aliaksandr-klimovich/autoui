@@ -1,11 +1,15 @@
-from selenium.webdriver.remote.webelement import WebElement
+from autoui.elements.abstract import Element, Fillable, Clickable
 
 
-class Input(WebElement):
+class Button(Element, Clickable):
+    def click(self):
+        self._element.click()
+
+
+class Input(Element, Fillable):
     def type(self, text):
-        self.clear()
-        self.send_keys(text)
+        self._element.clear()
+        self._element.send_keys(text)
 
-
-class Button(WebElement):
-    pass
+    def fill(self):
+        pass
