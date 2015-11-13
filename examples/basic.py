@@ -1,10 +1,10 @@
 from autoui.base import BasePage
-from autoui.elements.common import Input, Button
+from autoui.element.common import Input, Button
 from autoui.find import Find
-from autoui.locators import ID, XPath
+from autoui.locator import ID, XPath
 
 
-class YandexPage(BasePage):
+class YaPage(BasePage):
     url = "http://ya.ru"
     input = Find(Input, ID("text"))
     find = Find(Button, XPath('//button[@type="submit"]'))
@@ -16,7 +16,7 @@ class YandexPage(BasePage):
 
 
 if __name__ == "__main__":
-    YandexPage.get()
-    YandexPage.input.type("text")
-    YandexPage.find.click()
+    YaPage.get()
+    YaPage.input.type("text")
+    YaPage.find.click()
 

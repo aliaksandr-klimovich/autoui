@@ -3,9 +3,9 @@ from unittest import TestCase
 from mock import Mock
 
 from autoui.driver import get_driver
-from autoui.exceptions import AutoUIException
+from autoui.exception import AutoUIException
 from autoui.find import Find
-from autoui.locators import ID, _Locator
+from autoui.locator import ID
 
 
 class TestFindInit(TestCase):
@@ -24,8 +24,3 @@ class TestFindInit(TestCase):
         with self.assertRaises(AutoUIException) as e:
             class Page(object):
                 locator = Find(self.web_element, 'value')
-
-    def test_locator_is_not_of_type_Locator(self):
-        with self.assertRaises(AutoUIException) as e:
-            class Page(object):
-                locator = Find(self.web_element, _Locator('value'))

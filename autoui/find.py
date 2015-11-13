@@ -1,8 +1,8 @@
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
-from autoui.exceptions import AutoUIException
-from autoui.locators import _Locator
+from autoui.exception import AutoUIException
+from autoui.locator import Locator
 
 
 class Find(object):
@@ -14,8 +14,8 @@ class Find(object):
         self.element_init_kwargs = element_init_kwargs if element_init_kwargs else {}
 
         if locator is not None:
-            if type(locator) is _Locator or not isinstance(locator, _Locator):
-                raise AutoUIException('locator must be instance of derived class from class Locator, '
+            if not isinstance(locator, Locator):
+                raise AutoUIException('`locator` must be instance of derived class from class `Locator`, '
                                       'got {}'.format(type(locator)))
             self.by = locator.by
             self.value = locator.value

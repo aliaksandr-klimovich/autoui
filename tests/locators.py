@@ -2,26 +2,36 @@ from unittest import TestCase
 
 from selenium.webdriver.common.by import By
 
-from autoui.locators import _Locator, XPath, CSS
-from autoui.exceptions import AutoUIException
+from autoui.locator import Locator, XPath, CSS, ID
+from autoui.exception import AutoUIException
 
 
-class TestLocatorsInit(TestCase):
-    def test_basic(self):
-        _Locator('value')
+class TestLocatorInit(TestCase):
+    def test_basic_locator(self):
+        Locator(By.ID, 'value')
+
+    def test_basic_id_locator(self):
+        id = ID('value')
+        assert id.by == By.ID
+        assert id.value == 'value'
+
+    def test_basic_css_locator(self):
+        css = CSS('value')
+        assert css.by == By.CSS_SELECTOR
+        assert css.value == 'value'
+
+    def test_basic_xpath_locator(self):
+        xpath = XPath('value')
+        assert xpath.by == By.XPATH
+        assert xpath.value == 'value'
+
+    def test_invalid_by_type(self):
+        with self.assertRaises(AutoUIException) as e:
+            Locator(True, 'value')
 
     def test_invalid_value_type(self):
         with self.assertRaises(AutoUIException) as e:
-            _Locator(True)
-
-        with self.assertRaises(AutoUIException) as e:
-            _Locator(False)
-
-        with self.assertRaises(AutoUIException) as e:
-            _Locator(1)
-
-        with self.assertRaises(AutoUIException) as e:
-            _Locator(0)
+            Locator('id', True)
 
     def test_derived_class_basic(self):
         XPath('value')
@@ -30,8 +40,13 @@ class TestLocatorsInit(TestCase):
         with self.assertRaises(AutoUIException) as e:
             XPath(True)
 
+    def test_combined_init(self):
+        l = Locator(ID, 'value')
+        assert l.by == By.ID
+        assert l.value == 'value'
 
-class TestLocatorsAttributes(TestCase):
+
+class TestLocatorAttribute(TestCase):
     def test_basic_xpath(self):
         value = '.'
         xpath = XPath(value)
