@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 
 
 class Element(object):
@@ -13,10 +13,12 @@ class Element(object):
 class Clickable(object):
     __metaclass__ = ABCMeta
 
+    @abstractmethod
     def click(self):
         pass
 
 
 class Fillable(object):
+    @abstractmethod
     def fill(self):
         pass
