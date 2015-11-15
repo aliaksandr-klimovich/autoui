@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 class Element(object):
     """
     Base abstract class for elements.
-    _element is WebElement, founded by Find class.
+    ``_element`` is ``WebElement``, being found by ``Find`` class.
     """
     __metaclass__ = ABCMeta
     _element = None

@@ -40,11 +40,6 @@ class TestLocatorInit(TestCase):
         with self.assertRaises(AutoUIException) as e:
             XPath(True)
 
-    def test_combined_init(self):
-        l = Locator(ID, 'value')
-        assert l.by == By.ID
-        assert l.value == 'value'
-
 
 class TestLocatorAttribute(TestCase):
     def test_basic_xpath(self):

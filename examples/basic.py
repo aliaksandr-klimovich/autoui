@@ -10,13 +10,12 @@ class YaPage(BasePage):
     find = Find(Button, XPath('//button[@type="submit"]'))
 
     @classmethod
-    def find_text(self, text):
-        self.input.type(text)
-        self.find.click()
+    def find_text(cls, text):
+        cls.input.type(text)
+        cls.find.click()
 
 
 if __name__ == "__main__":
     YaPage.get()
     YaPage.input.type("text")
     YaPage.find.click()
-
