@@ -7,6 +7,11 @@ from autoui.locator import XPath
 class HeaderSection(BaseSection):
     search = Find(Input, XPath('.//input[@type="text" and @name="q"]'))
 
+    def type(self):
+        # search with HeaderSection._element
+        self.search.type('autoui')
+        self.search.type('autoui once again!')
+
 
 class GitHubPage(BasePage):
     url = 'https://github.com/'
@@ -15,4 +20,4 @@ class GitHubPage(BasePage):
 
 if __name__ == '__main__':
     GitHubPage.get()
-    GitHubPage.header.search.type('autoui')
+    GitHubPage.header.type()
