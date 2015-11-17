@@ -1,20 +1,24 @@
 import re
+import warnings
 from unittest import TestCase
 
 from mock import Mock
+from nose.tools import eq_
 
+from autoui.base import BaseSection
 from autoui.driver import get_driver
 from autoui.element.abstract import Element
 from autoui.element.common import Button
-from autoui.exception import AutoUIException
+from autoui.exception import AutoUIException, AutoUIWarning
 from autoui.find import Find
-from autoui.locator import ID, XPath
+from autoui.locator import XPath
 
 
 class TestFind(TestCase):
     repr_name_parser = re.compile(r"<Mock .*? ?name='(.*?)' .*")
 
     def setUp(self):
+        self.xpath = XPath('.')
         self.driver = Mock(name='driver')
         self.web_element = Mock(name='web_element')
         self.find_element = Mock(name='find_element', return_value=self.web_element)
@@ -25,18 +29,16 @@ class TestFind(TestCase):
         get_driver._driver = None
 
     def test_basic(self):
-        id = ID('value')
-
         class CustomElement(Element):
             pass
 
         class Page(object):
-            locator = Find(CustomElement, id)
+            locator = Find(CustomElement, self.xpath)
 
         web_element_instance = Page().locator
         assert isinstance(web_element_instance, Element)
         assert web_element_instance._element is self.web_element
-        self.find_element.assert_called_once_with(id.by, id.value)
+        self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
     def test_incorrect_locator_type__pass_instance(self):
         with self.assertRaises(AutoUIException) as e:
@@ -53,11 +55,11 @@ class TestFind(TestCase):
     def test_element_is_not_class(self):
         with self.assertRaises(AutoUIException) as e:
             class Page(object):
-                locator = Find(Element(), XPath('.'))
+                locator = Find(Element(), self.xpath)
         assert e.exception.message == "`element` must be class"
 
     def test_pass_nothing(self):
-        with self.assertRaises(TypeError) as e:
+        with self.assertRaises(TypeError):
             class Page:
                 locator = Find()
 
@@ -73,16 +75,14 @@ class TestFind(TestCase):
 
     def test_button_click(self):
         class Page(object):
-            locator = Find(Button, XPath('.'))
+            locator = Find(Button, self.xpath)
 
         Page.locator.click()
         assert self.web_element.click.called
 
     def test_default_locator(self):
-        xpath = XPath('.')
-
         class CustomSection(object):
-            locator = xpath
+            locator = self.xpath
 
         class Page(object):
             custom_section = Find(CustomSection)
@@ -90,4 +90,41 @@ class TestFind(TestCase):
         custom_section = Page.custom_section
         assert isinstance(custom_section, CustomSection)
         assert custom_section._element is self.web_element
-        self.find_element.assert_called_once_with(xpath.by, xpath.value)
+        self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_linked_name(self):
+        class Page(object):
+            custom_section = Find(Element, self.xpath, name='custom_section_name')
+
+        web_element_instance = Page.custom_section
+        eq_(web_element_instance._name, 'custom_section_name')
+        assert isinstance(web_element_instance, Element)
+        self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_linked_name_with_non_element_class(self):
+        class VeryCustomElement(object):
+            pass
+
+        class Page(object):
+            custom_section = Find(VeryCustomElement, name='custom_section_name')
+
+        with self.assertRaises(AttributeError):
+            with warnings.catch_warnings(record=True) as w:
+                Page.custom_section._name
+        assert issubclass(w[0].category, AutoUIWarning)
+        self.web_element.assert_not_called()
+        self.find_element.assert_not_called()
+
+    def test_search_with_driver(self):
+        class Section1(BaseSection):
+            search_with_driver = True
+
+        class Section2(BaseSection):
+            section_1 = Find(Section1, self.xpath)
+
+        class Page(object):
+            section = Find(Section2, self.xpath)
+
+        section_1_instance = Page.section.section_1
+        assert isinstance(section_1_instance, Section1)
+        self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
