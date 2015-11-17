@@ -3,9 +3,9 @@ from warnings import warn
 
 from autoui.base import BaseSection
 from autoui.driver import get_driver
-from autoui.element.abstract import Element
-from autoui.exception import AutoUIException, AutoUIWarning
-from autoui.locator import Locator
+from autoui.elements.abstract import Element
+from autoui.exceptions import AutoUIException, AutoUIWarning
+from autoui.locators import Locator
 
 
 class Find(object):

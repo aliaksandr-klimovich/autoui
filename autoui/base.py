@@ -1,5 +1,5 @@
 from autoui.driver import get_driver
-from autoui.exception import AutoUIException
+from autoui.exceptions import AutoUIException
 
 
 class BasePage(object):

@@ -1,4 +1,4 @@
-from autoui.element.abstract import Element, Fillable, Clickable
+from autoui.elements.abstract import Element, Fillable, Clickable
 
 
 class Text(Element):

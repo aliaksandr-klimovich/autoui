@@ -1,7 +1,7 @@
 from autoui.base import BasePage, BaseSection
-from autoui.element.common import Text
+from autoui.elements.common import Text
 from autoui.find import Find
-from autoui.locator import CSS
+from autoui.locators import CSS
 
 
 class ForecastDateSection(BaseSection):

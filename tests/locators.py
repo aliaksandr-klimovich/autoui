@@ -2,8 +2,8 @@ from unittest import TestCase
 
 from selenium.webdriver.common.by import By
 
-from autoui.locator import Locator, XPath, CSS, ID
-from autoui.exception import AutoUIException
+from autoui.locators import Locator, XPath, CSS, ID
+from autoui.exceptions import AutoUIException
 
 
 class TestLocatorInit(TestCase):

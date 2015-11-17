@@ -1,7 +1,7 @@
 from autoui.base import BasePage, BaseSection
-from autoui.element.common import Input
+from autoui.elements.common import Input
 from autoui.find import Find
-from autoui.locator import XPath
+from autoui.locators import XPath
 
 
 class HeaderSection(BaseSection):

@@ -1,7 +1,7 @@
 from autoui.base import BasePage
-from autoui.element.common import Input, Button
+from autoui.elements.common import Input, Button
 from autoui.find import Find
-from autoui.locator import ID, XPath
+from autoui.locators import ID, XPath
 
 
 class YaPage(BasePage):

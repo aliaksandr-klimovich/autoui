@@ -7,11 +7,11 @@ from nose.tools import eq_
 
 from autoui.base import BaseSection
 from autoui.driver import get_driver
-from autoui.element.abstract import Element
-from autoui.element.common import Button
-from autoui.exception import AutoUIException, AutoUIWarning
+from autoui.elements.abstract import Element
+from autoui.elements.common import Button
+from autoui.exceptions import AutoUIException, AutoUIWarning
 from autoui.find import Find
-from autoui.locator import XPath
+from autoui.locators import XPath
 
 
 class TestFind(TestCase):

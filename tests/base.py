@@ -1,6 +1,6 @@
 from unittest import TestCase
 from autoui.base import BaseSection
-from autoui.exception import AutoUIException
+from autoui.exceptions import AutoUIException
 
 
 class TestBaseSection(TestCase):
