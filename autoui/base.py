@@ -21,7 +21,13 @@ class BaseSection(object):
     Inherit sections from this class that contains elements.
     Note, you can inherit from ``object``.
     Remember, that ``_element`` attribute is reserved.
+
+    Set ``_search_with_driver`` to ``True`` if you want to find your section with driver.
+
+    Specify ``locator`` if you want to use default locator to find your section.
+    If ``locator`` is used in Find declaration - it will be used first.
     """
     __metaclass__ = BaseSectionMeta
     _element = None
     _search_with_driver = False
+    locator = None

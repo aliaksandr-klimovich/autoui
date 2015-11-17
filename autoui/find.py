@@ -19,17 +19,29 @@ class Find(object):
         if locator is None:
             self.locator = None
         else:
-            if not isinstance(locator, Locator):
-                raise AutoUIException('`locator` must be instance of class `Locator`, got `{}`'.format(
-                    locator.__name__ if isclass(locator) else locator.__class__.__name__))
+            self._validate_locator(locator)
             self.locator = locator
 
     def __get__(self, instance, owner):
         new_element = self.element(*self.element_init_args, **self.element_init_kwargs)
-        if self.locator:
+
+        def get_finder():
             if issubclass(owner, BaseSection) and owner._search_with_driver is False and hasattr(instance, '_element'):
                 finder = instance._element
             else:
                 finder = get_driver()
+            return finder
+
+        if self.locator:
+            finder = get_finder()
             new_element._element = finder.find_element(self.locator.by, self.locator.value)
+        elif hasattr(self.element, 'locator'):
+            self._validate_locator(self.element.locator)
+            finder = get_finder()
+            new_element._element = finder.find_element(self.element.locator.by, self.element.locator.value)
         return new_element
+
+    def _validate_locator(self, locator):
+        if not isinstance(locator, Locator):
+            raise AutoUIException('`locator` must be instance of class `Locator`, got `{}`'.format(
+                locator.__name__ if isclass(locator) else locator.__class__.__name__))
