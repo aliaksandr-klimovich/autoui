@@ -2,6 +2,7 @@ import re
 from unittest import TestCase
 
 from mock import Mock
+from nose.tools import eq_
 
 from autoui.base import BaseSection, FillableSection
 from autoui.driver import get_driver
@@ -71,13 +72,6 @@ class TestFind(TestCase):
         empty_page_instance = Page.empty_section
         assert isinstance(empty_page_instance, EmptySection)
 
-    def test_button_click(self):
-        class Page(object):
-            locator = Find(Button, self.xpath)
-
-        Page.locator.click()
-        assert self.web_element.click.called
-
     def test_default_locator(self):
         class CustomSection(object):
             locator = self.xpath
@@ -116,3 +110,12 @@ class TestFind(TestCase):
         Section().fill({'el2': 'some another text'})
         # TODO: assert called
 
+    def test_init_args_and_kwargs(self):
+        raise NotImplementedError()
+
+    def test_element_without_locator(self):
+        with self.assertRaises(AutoUIException) as e:
+            class A:
+                button = Find(Button)
+
+        eq_(e.exception.message, 'If element is subclass of `Element`, locator must be present')

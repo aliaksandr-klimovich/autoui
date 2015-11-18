@@ -1,6 +1,7 @@
 from inspect import isclass
 
 from autoui.driver import get_driver
+from autoui.elements.abstract import Element
 from autoui.exceptions import AutoUIException
 from autoui.locators import Locator
 
@@ -18,11 +19,14 @@ class Find(object):
         self._validate_element(element)
         self.element = element
 
-        self.element_init_args = args if args else []
-        self.element_init_kwargs = kwargs if kwargs else {}
-
         self._validate_locator(locator)
         self.locator = locator
+
+        if issubclass(element, Element) and locator is None:
+            raise AutoUIException('If element is subclass of `Element`, locator must be present')
+
+        self.element_init_args = args if args else []
+        self.element_init_kwargs = kwargs if kwargs else {}
 
     def __get__(self, instance, owner):
         new_element = self.element(*self.element_init_args, **self.element_init_kwargs)
@@ -30,7 +34,7 @@ class Find(object):
         if self.locator:
             finder = self._get_finder(instance, owner)
             new_element._element = finder.find_element(self.locator.by, self.locator.value)
-        elif 'locator' in self.element.__dict__:
+        elif hasattr(self.element, 'locator') and self.element.locator is not None:
             self._validate_locator(self.element.locator)
             finder = self._get_finder(instance, owner)
             new_element._element = finder.find_element(self.element.locator.by, self.element.locator.value)
@@ -52,6 +56,6 @@ class Find(object):
 
     @staticmethod
     def _validate_locator(locator):
-        if not isinstance(locator, Locator) and locator is not None:
+        if locator is not None and not isinstance(locator, Locator):
             raise AutoUIException('`locator` must be instance of class `Locator`, got `{}`'.format(
                 locator.__name__ if isclass(locator) else locator.__class__.__name__))

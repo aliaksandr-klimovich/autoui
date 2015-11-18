@@ -24,3 +24,6 @@ class TestBaseSection(TestCase):
             el2 = Find(Input)
 
         eq_(Section._get_names(), ['el1', 'el2'])
+
+    def test_search_with_driver_not_bool(self):
+        raise NotImplementedError()
