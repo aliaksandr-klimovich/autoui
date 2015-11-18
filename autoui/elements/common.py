@@ -17,5 +17,5 @@ class Input(Element, Fillable):
         self._element.clear()
         self._element.send_keys(text)
 
-    def fill(self):
-        pass
+    def fill(self, value):
+        self.type(value)

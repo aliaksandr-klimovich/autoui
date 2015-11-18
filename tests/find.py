@@ -1,15 +1,13 @@
 import re
-import warnings
 from unittest import TestCase
 
 from mock import Mock
-from nose.tools import eq_
 
-from autoui.base import BaseSection
+from autoui.base import BaseSection, FillableSection
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
-from autoui.elements.common import Button
-from autoui.exceptions import AutoUIException, AutoUIWarning
+from autoui.elements.common import Button, Input
+from autoui.exceptions import AutoUIException
 from autoui.find import Find
 from autoui.locators import XPath
 
@@ -92,29 +90,6 @@ class TestFind(TestCase):
         assert custom_section._element is self.web_element
         self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
-    def test_linked_name(self):
-        class Page(object):
-            custom_section = Find(Element, self.xpath, name='custom_section_name')
-
-        web_element_instance = Page.custom_section
-        eq_(web_element_instance._name, 'custom_section_name')
-        assert isinstance(web_element_instance, Element)
-        self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
-
-    def test_linked_name_with_non_element_class(self):
-        class VeryCustomElement(object):
-            pass
-
-        class Page(object):
-            custom_section = Find(VeryCustomElement, name='custom_section_name')
-
-        with self.assertRaises(AttributeError):
-            with warnings.catch_warnings(record=True) as w:
-                Page.custom_section._name
-        assert issubclass(w[0].category, AutoUIWarning)
-        self.web_element.assert_not_called()
-        self.find_element.assert_not_called()
-
     def test_search_with_driver(self):
         class Section1(BaseSection):
             search_with_driver = True
@@ -128,3 +103,16 @@ class TestFind(TestCase):
         section_1_instance = Page.section.section_1
         assert isinstance(section_1_instance, Section1)
         self.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_section_fill(self):
+        class Section(FillableSection):
+            el1 = Find(Input, self.xpath)
+            el2 = Find(Input, self.xpath)
+
+        class Page(BaseSection):
+            section = Find(Section)
+
+        Page.section.fill({'el1': 'some text'})
+        Section().fill({'el2': 'some another text'})
+        # TODO: assert called
+

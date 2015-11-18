@@ -9,12 +9,6 @@ class Element(object):
     __metaclass__ = ABCMeta
     _element = None
 
-    def __init__(self, _name=None):
-        """
-        :param _name: used by ``Find`` to implement element names
-        """
-        self._name = _name
-
 
 class Clickable(object):
     __metaclass__ = ABCMeta
