@@ -100,18 +100,33 @@ class TestFind(TestCase):
 
     def test_section_fill(self):
         class Section(FillableSection):
-            el1 = Find(Input, self.xpath)
-            el2 = Find(Input, self.xpath)
+            el1 = Find(Input, XPath('xpath_1'))
+            el2 = Find(Input, XPath('xpath_2'))
 
         class Page(BaseSection):
             section = Find(Section)
 
         Page.section.fill({'el1': 'some text'})
+        self.find_element.assert_called_with('xpath', 'xpath_1')
+        assert self.web_element.clear.called
+        self.web_element.send_keys.assert_called_with('some text')
+        
         Section().fill({'el2': 'some another text'})
-        # TODO: assert called
+        self.find_element.assert_called_with('xpath', 'xpath_2')
+        assert self.web_element.clear.called
+        self.web_element.send_keys.assert_called_with('some another text')
 
     def test_init_args_and_kwargs(self):
-        raise NotImplementedError()
+        class Section:
+            def __init__(self, arg):
+                self.arg = arg
+        
+        class Page:
+            section = Find(Section, args=('value',))
+        
+        section = Page.section
+        eq_(section.arg, 'value')
+        assert isinstance(section, Section)
 
     def test_element_without_locator(self):
         with self.assertRaises(AutoUIException) as e:
