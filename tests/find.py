@@ -43,19 +43,19 @@ class TestFind(TestCase):
         with self.assertRaises(AutoUIException) as e:
             class Page(object):
                 locator = Find(Element, 'value')
-        assert e.exception.message == "`locator` must be instance of class `Locator`, got `str`"
+        eq_(e.exception.message, "`locator` must be instance of class `Locator`, got `str`")
 
     def test_incorrect_locator_type__pass_class(self):
         with self.assertRaises(AutoUIException) as e:
             class Page(object):
                 locator = Find(Element, str)
-        assert e.exception.message == "`locator` must be instance of class `Locator`, got `str`"
+        eq_(e.exception.message, "`locator` must be instance of class `Locator`, got `str`")
 
     def test_element_is_not_class(self):
         with self.assertRaises(AutoUIException) as e:
             class Page(object):
                 locator = Find(Element(), self.xpath)
-        assert e.exception.message == "`element` must be class"
+        eq_(e.exception.message, "`element` must be class")
 
     def test_pass_nothing(self):
         with self.assertRaises(TypeError):
@@ -110,7 +110,7 @@ class TestFind(TestCase):
         self.find_element.assert_called_with('xpath', 'xpath_1')
         assert self.web_element.clear.called
         self.web_element.send_keys.assert_called_with('some text')
-        
+
         Section().fill({'el2': 'some another text'})
         self.find_element.assert_called_with('xpath', 'xpath_2')
         assert self.web_element.clear.called
@@ -120,10 +120,10 @@ class TestFind(TestCase):
         class Section:
             def __init__(self, arg):
                 self.arg = arg
-        
+
         class Page:
             section = Find(Section, args=('value',))
-        
+
         section = Page.section
         eq_(section.arg, 'value')
         assert isinstance(section, Section)
@@ -134,3 +134,24 @@ class TestFind(TestCase):
                 button = Find(Button)
 
         eq_(e.exception.message, 'If element is subclass of `Element`, locator must be present')
+
+    def test_inherited_fillable_sections(self):
+        class Section2(FillableSection):
+            s2_el1 = Find(Input)
+            s2_el2 = Find(Input)
+
+        class Section1(FillableSection):
+            stop_propagation = True
+            section2 = Find(Section2)
+            s1_el1 = Find(Input)
+
+        class Page:
+            section1 = Find(Section1)
+
+        Page.section1.fill({
+            's1_el1': 's1_el1_value',
+            'section2': {
+                's2_el1': 's2_el1_value',
+                's2_el2': 's2_el2_value',
+            }
+        })
