@@ -6,6 +6,7 @@ from autoui.base import BaseSection
 from autoui.elements.common import Input
 from autoui.exceptions import AutoUIException
 from autoui.find import Find
+from autoui.locators import XPath
 
 
 class TestBaseSection(TestCase):
@@ -20,10 +21,13 @@ class TestBaseSection(TestCase):
 
     def test_get_names(self):
         class Section(BaseSection):
-            el1 = Find(Input)
-            el2 = Find(Input)
+            el1 = Find(Input, XPath('.'))
+            el2 = Find(Input, XPath('.'))
 
         eq_(Section._get_names(), ['el1', 'el2'])
 
     def test_search_with_driver_not_bool(self):
-        raise NotImplementedError()
+        with self.assertRaises(AutoUIException) as e:
+            class Section(BaseSection):
+                search_with_driver = 'True'
+        eq_(e.exception.message, '`search_with_driver` class attribute must be of `bool` type')
