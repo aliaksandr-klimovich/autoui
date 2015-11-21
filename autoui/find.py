@@ -25,11 +25,11 @@ class Find(object):
         if issubclass(element, Element) and locator is None:
             raise AutoUIException('If element is subclass of `Element`, locator must be present')
 
-        self.element_init_args = args if args else []
-        self.element_init_kwargs = kwargs if kwargs else {}
+        self.args = args if args else []
+        self.kwargs = kwargs if kwargs else {}
 
     def __get__(self, instance, owner):
-        new_element = self.element(*self.element_init_args, **self.element_init_kwargs)
+        new_element = self.element(*self.args, **self.kwargs)
 
         if self.locator:
             finder = self._get_finder(instance, owner)
@@ -40,10 +40,9 @@ class Find(object):
             new_element._element = finder.find_element(self.element.locator.by, self.element.locator.value)
         return new_element
 
-    @staticmethod
-    def _get_finder(instance, owner):
+    def _get_finder(self, instance, owner):
         if instance is not None and '_element' in instance.__dict__ \
-                and not (hasattr(owner, 'search_with_driver') and owner.search_with_driver is True):
+                and not (hasattr(self.element, 'search_with_driver') and self.element.search_with_driver is True):
             finder = instance._element
         else:
             finder = get_driver()
