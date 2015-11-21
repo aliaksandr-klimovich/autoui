@@ -19,3 +19,6 @@ class Input(Element, Fillable):
 
     def fill(self, value):
         self.type(value)
+
+    def get_state(self):
+        return self._element.get_attribute('value')

@@ -52,13 +52,16 @@ class BaseSection(object):
         _dict = cls.__dict__
         for element_name in _dict:
             if isinstance(_dict[element_name], Find):
-                names.insert(0, element_name)
+                names.append(element_name)
         return names
 
 
 class FillableSection(BaseSection, Fillable):
     """
-    Realizes special section to fill it with one simple dict
+    Realizes special section to fill it with one simple dict.
+
+    Set ``stop_propagation`` to True is you don't want to process your section.
+    This attribute affects both ``fill`` and ``get_state`` methods.
     """
     stop_propagation = False
 
@@ -73,14 +76,32 @@ class FillableSection(BaseSection, Fillable):
 
         for _k, _v in dict_to_fill.items():
             if _v is not None and _k in _names:
-                elcl = _dict[_k].element
+                elcl = _dict[_k].element  # self.element in ``Find`` instance
                 if issubclass(elcl, FillableSection) and self.stop_propagation is True:
                     continue
                 if issubclass(elcl, Fillable):
                     _dict[_k].__get__(self, self.__class__).fill(_v)
 
+    def get_state(self):
+        """
+        :return:  dict with data to check state or pass to ``fill`` method
+        """
+        _dict = self.__class__.__dict__
+        _names = self._get_names()
+        state = {}
+
+        for el_name in _names:
+            elcl = _dict[el_name].element
+            if issubclass(elcl, FillableSection) and self.stop_propagation is True:
+                continue
+            if issubclass(elcl, Fillable):
+                state[el_name] = _dict[el_name].__get__(self, self.__class__).get_state()
+        return state
+
 
 class BasePage(BaseSection):
+    url = None
+
     @classmethod
     def get(cls, url=None):
         url = cls.url if cls.url else url

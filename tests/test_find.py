@@ -151,7 +151,7 @@ class TestFind(TestCase):
         eq_(e.exception.message, 'If element is subclass of `Element`, locator must be present')
 
     def test_inherited_fillable_sections(self):
-        # prepare
+        # main structure
 
         class Section2(FillableSection):
             s2_el1 = Find(Input, XPath('s2_el1'))
@@ -168,20 +168,24 @@ class TestFind(TestCase):
         class Page:
             section1 = Find(Section1)
 
+        # basic test
         section1 = Page.section1
         assert isinstance(section1, Section1)
         assert section1._element is self.web_element
 
-        section1.fill({
+        dict_to_fill = {
             's1_el1': 's1_el1_value',
             'section2': {
                 's2_el1': 's2_el1_value',
                 's2_el2': 's2_el2_value',
             }
-        })
+        }
+        section1.fill(dict_to_fill)
 
+        # section1 must be found with driver
         self.driver.find_element.assert_has_calls([call('xpath', 'section1')])
 
+        # section2 and items of section1 must be found with web element of section1
         self.web_element.find_element.assert_has_calls([
             call('xpath', 's1_el1'),
             call('xpath', 'section2')
@@ -192,6 +196,7 @@ class TestFind(TestCase):
             call.send_keys('s1_el1_value'),
         ])
 
+        # items of section2 must be found with web element of section2
         self.web_element_inh.find_element.assert_has_calls([
             call('xpath', 's2_el1'),
             call('xpath', 's2_el2'),
@@ -203,6 +208,12 @@ class TestFind(TestCase):
             call.clear(),
             call.send_keys('s2_el2_value')
         ])
+
+        self.web_element_inh.get_attribute.return_value = 's1_el1_value'
+        self.web_element_inh_2.get_attribute.side_effect = ['s2_el1_value', 's2_el2_value']
+
+        state = section1.get_state()
+        eq_(dict_to_fill, state)
 
     def test_stop_propagation(self):
         class Section2(FillableSection):
@@ -222,13 +233,15 @@ class TestFind(TestCase):
         section1 = Page.section1
         assert isinstance(section1, Section1)
 
-        section1.fill({
+        dict_to_fill = {
             's1_el1': 's1_el1_value',
             'section2': {
                 's2_el1': 's2_el1_value',
                 's2_el2': 's2_el2_value',
             }
-        })
+        }
+
+        section1.fill(dict_to_fill)
 
         self.driver.find_element.assert_has_calls([call('xpath', 'section1')])
 
@@ -242,3 +255,11 @@ class TestFind(TestCase):
         ])
 
         self.web_element_inh.find_element.assert_not_called()
+
+        self.web_element_inh.get_attribute.return_value = 's1_el1_value'
+        self.web_element_inh_2.get_attribute.side_effect = ['s2_el1_value', 's2_el2_value']
+
+        state = section1.get_state()
+
+        result_dict = {'s1_el1': 's1_el1_value'}
+        eq_(result_dict, state)
