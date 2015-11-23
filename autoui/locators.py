@@ -17,6 +17,9 @@ class Locator(object):
         self.by = by
         self.value = value
 
+    def __str__(self):
+        return self.by + '=' + self.value
+
 
 class ID(Locator):
     def __init__(self, value):

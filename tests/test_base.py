@@ -24,7 +24,8 @@ class TestBaseSection(TestCase):
             el1 = Find(Input, XPath('.'))
             el2 = Find(Input, XPath('.'))
 
-        eq_(Section._get_names(), ['el1', 'el2'])
+        eq_(Section._get_names(), ['el2', 'el1'])
+        eq_(Section._names, ['el1', 'el2'])
 
     def test_search_with_driver_not_bool(self):
         with self.assertRaises(AutoUIException) as e:

@@ -263,3 +263,17 @@ class TestFind(TestCase):
 
         result_dict = {'s1_el1': 's1_el1_value'}
         eq_(result_dict, state)
+
+    def test_dynamic_locator(self):
+        class Section(BaseSection):
+            locator = XPath('section')
+            input = Find(Input, XPath('input'))
+
+        class Page:
+            section = Find(Section)
+
+            def get_section_dynamically(self, param):
+                return Find(Section, XPath('.//%s' % param))
+
+        section = Page().get_section_dynamically(param="value")
+        eq_(section.locator.value, './/value')
