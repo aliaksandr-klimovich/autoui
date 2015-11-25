@@ -26,18 +26,18 @@ class TestLocatorInit(TestCase):
         assert xpath.value == 'value'
 
     def test_invalid_by_type(self):
-        with self.assertRaises(AutoUIException) as e:
+        with self.assertRaises(AutoUIException):
             Locator(True, 'value')
 
     def test_invalid_value_type(self):
-        with self.assertRaises(AutoUIException) as e:
+        with self.assertRaises(AutoUIException):
             Locator('id', True)
 
     def test_derived_class_basic(self):
         XPath('value')
 
     def test_derived_class_basic_invalid_value_type(self):
-        with self.assertRaises(AutoUIException) as e:
+        with self.assertRaises(AutoUIException):
             XPath(True)
 
 

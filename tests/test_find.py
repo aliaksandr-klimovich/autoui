@@ -277,3 +277,18 @@ class TestFind(TestCase):
 
         section = Page().get_section_dynamically(param="value")
         eq_(section.locator.value, './/value')
+
+    def test_inheritance(self):
+        class CommonSection(BaseSection):
+            locator = XPath('common_section')
+            element_common_section = Find(Element, XPath('element_common_section'))
+
+        class CustomSection(CommonSection):
+            element_custom_section = Find(Element, XPath('element_custom_section'))
+
+        class CommonPage(object):
+            custom_section = Find(CustomSection)
+
+        custom_section = CommonPage.custom_section
+        assert hasattr(custom_section, 'element_custom_section')
+        assert hasattr(custom_section, 'element_common_section')
