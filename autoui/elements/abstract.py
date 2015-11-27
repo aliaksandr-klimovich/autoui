@@ -22,7 +22,7 @@ class Fillable(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def fill(self, values):
+    def fill(self, data):
         pass
 
     @abstractmethod
