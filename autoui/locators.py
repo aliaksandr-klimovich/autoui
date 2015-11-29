@@ -8,10 +8,10 @@ from autoui.exceptions import AutoUIException
 class Locator(object):
     def __init__(self, by, value):
         if type(by) is not str:
-            raise AutoUIException('`by` must be `str` type, got `{}`'.format(
+            raise TypeError('`by` must be `str` type, got `{}`'.format(
                 by.__name__ if isclass(by) else by.__class__.__name__))
         if type(value) is not str:
-            raise AutoUIException('`value` must be `str` type, got `{}`'.format(
+            raise TypeError('`value` must be `str` type, got `{}`'.format(
                 value.__name__ if isclass(value) else value.__class__.__name__))
 
         self.by = by

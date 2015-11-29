@@ -4,3 +4,7 @@ class AutoUIException(Exception):
 
 class AutoUIWarning(Warning):
     pass
+
+
+class InvalidLocatorException(AutoUIException):
+    pass

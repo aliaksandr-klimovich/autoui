@@ -1,20 +1,20 @@
 from autoui.base import BasePage
-from autoui.elements.common import Input, Button
-from autoui.find import Find
-from autoui.locators import ID, XPath
+from autoui.elements.common import Button, Input
+
+from autoui.locators import XPath, ID
 
 
 class YaPage(BasePage):
     url = "http://ya.ru"
-    input = Find(Input, ID("text"))
-    find = Find(Button, XPath('//button[@type="submit"]'))
+    input = Input(ID("text"))
+    find = Button(XPath('//button[@type="submit"]'))
 
-    @classmethod
-    def find_text(cls, text):
-        cls.input.type(text)
-        cls.find.click()
+    def find_text(self, text):
+        self.input.type(text)
+        self.find.click()
 
 
 if __name__ == "__main__":
-    YaPage.get()
-    YaPage.find_text("autoui")
+    ya_page = YaPage()
+    ya_page.get()
+    ya_page.find_text("autoui")

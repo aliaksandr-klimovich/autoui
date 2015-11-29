@@ -1,9 +1,10 @@
 from abc import ABCMeta
 
 from autoui.driver import get_driver
-from autoui.elements.abstract import Fillable
+# from autoui.elements.abstract import Fillable
+from autoui.elements.abstract import Element
 from autoui.exceptions import AutoUIException
-from autoui.find import Find
+# from autoui.find import Find
 
 
 class BaseSectionMeta(ABCMeta):
@@ -18,14 +19,14 @@ class BaseSectionMeta(ABCMeta):
         _names = []
         for attr in nmspc:
             cl_dict = cl.__dict__
-            if isinstance(cl_dict[attr], Find):
+            if isinstance(cl_dict[attr], Element):
                 _names.insert(0, attr)
         cl._names = _names
 
         return cl
 
 
-class BaseSection(object):
+class BaseSection(Element):
     """
     Inherit sections from this class that contains elements.
     Note, you can inherit from ``object``.
@@ -56,50 +57,50 @@ class BaseSection(object):
         return names
 
 
-class FillableSection(BaseSection, Fillable):
-    """
-    Realizes special section to fill it with one simple dict.
+# class FillableSection(BaseSection, Fillable):
+#     """
+#     Realizes special section to fill it with one simple dict.
+#
+#     Set ``stop_propagation`` to True is you don't want to process your section.
+#     This attribute affects both ``fill`` and ``get_state`` methods.
+#     """
+#     stop_propagation = False
+#
+#     def fill(self, dict_to_fill):
+#         """
+#         Recursively fills all section and inherited section if not ``stop_propagation`` is flagged.
+#
+#         :param dict_to_fill: should be ``dict`` with names of class attributes that matches elements with ``Find``
+#         """
+#         _dict = self.__class__.__dict__
+#         _names = self._get_names()
+#
+#         for _k, _v in dict_to_fill.items():
+#             if _v is not None and _k in _names:
+#                 elcl = _dict[_k].element  # self.element in ``Find`` instance
+#                 if issubclass(elcl, FillableSection) and self.stop_propagation is True:
+#                     continue
+#                 if issubclass(elcl, Fillable):
+#                     _dict[_k].__get__(self, self.__class__).fill(_v)
+#
+#     def get_state(self):
+#         """
+#         :return:  dict with data to check state or pass to ``fill`` method
+#         """
+#         _dict = self.__class__.__dict__
+#         _names = self._get_names()
+#         state = {}
+#
+#         for el_name in _names:
+#             elcl = _dict[el_name].element
+#             if issubclass(elcl, FillableSection) and self.stop_propagation is True:
+#                 continue
+#             if issubclass(elcl, Fillable):
+#                 state[el_name] = _dict[el_name].__get__(self, self.__class__).get_state()
+#         return state
 
-    Set ``stop_propagation`` to True is you don't want to process your section.
-    This attribute affects both ``fill`` and ``get_state`` methods.
-    """
-    stop_propagation = False
 
-    def fill(self, dict_to_fill):
-        """
-        Recursively fills all section and inherited section if not ``stop_propagation`` is flagged.
-
-        :param dict_to_fill: should be ``dict`` with names of class attributes that matches elements with ``Find``
-        """
-        _dict = self.__class__.__dict__
-        _names = self._get_names()
-
-        for _k, _v in dict_to_fill.items():
-            if _v is not None and _k in _names:
-                elcl = _dict[_k].element  # self.element in ``Find`` instance
-                if issubclass(elcl, FillableSection) and self.stop_propagation is True:
-                    continue
-                if issubclass(elcl, Fillable):
-                    _dict[_k].__get__(self, self.__class__).fill(_v)
-
-    def get_state(self):
-        """
-        :return:  dict with data to check state or pass to ``fill`` method
-        """
-        _dict = self.__class__.__dict__
-        _names = self._get_names()
-        state = {}
-
-        for el_name in _names:
-            elcl = _dict[el_name].element
-            if issubclass(elcl, FillableSection) and self.stop_propagation is True:
-                continue
-            if issubclass(elcl, Fillable):
-                state[el_name] = _dict[el_name].__get__(self, self.__class__).get_state()
-        return state
-
-
-class BasePage(BaseSection):
+class BasePage(object):
     url = None
 
     @classmethod
