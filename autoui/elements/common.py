@@ -1,4 +1,4 @@
-from autoui.elements.abstract import Element, Elements
+from autoui.elements.abstract import Element, Elements, Fillable
 
 
 class Button(Element):
@@ -21,15 +21,15 @@ class Links(Elements):
         return [element.get_attribute('href') for element in self.web_elements]
 
 
-class Input(Element):
+class Input(Element, Fillable):
     def type(self, text):
         self.web_element.clear()
         self.web_element.send_keys(text)
 
-    def fill(self, data):
+    def fill(self, data, stop=False):
         self.type(data)
 
-    def get_state(self):
+    def get_state(self, stop=False):
         return self.web_element.get_attribute('value')
 
     def send_keys(self, data):

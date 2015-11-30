@@ -1,13 +1,25 @@
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta
 from inspect import isclass
 
 from autoui.driver import get_driver
-from autoui.exceptions import InvalidLocatorException
+from autoui.exceptions import InvalidLocatorException, AttributeNotPermittedException
 from autoui.locators import Locator
 
 
+class ElementMeta(ABCMeta):
+    def __new__(mcl, name, bases, nmspc):
+        if 'web_element' in nmspc and name != 'Element' and Element in bases:
+            print bases, nmspc
+            raise AttributeNotPermittedException('`web_element` attribute is reserved by framework')
+        if 'web_elements' in nmspc and name != 'Elements' and Elements in bases:
+            print bases, nmspc
+            raise AttributeNotPermittedException('`web_elements` attribute is reserved by framework')
+        return super(ElementMeta, mcl).__new__(mcl, name, bases, nmspc)
+
+
 class Element(object):
-    __metaclass__ = ABCMeta
+    __metaclass__ = ElementMeta
+    web_element = None
     locator = None
     search_with_driver = None
 
@@ -15,7 +27,6 @@ class Element(object):
         """
         :param locator: obligatory instance of class ``Locator``
         """
-
         if locator is not None:
             self.locator = locator
         self._validate_locator()
@@ -41,7 +52,7 @@ class Element(object):
 
 
 class Elements(Element):
-    __metaclass__ = ABCMeta
+    web_elements = None
 
     def __get__(self, instance, owner):
         finder = self._get_finder(instance, owner)
@@ -50,13 +61,43 @@ class Elements(Element):
         return self
 
 
-class Fillable(object):
-    __metaclass__ = ABCMeta
+class Fillable:
+    stop_propagation = False
 
-    @abstractmethod
-    def fill(self, data):
-        pass
+    def _get_names(self):
+        names = set()
+        for element_name in self.__class__.__dict__:
+            if isinstance(self.__class__.__dict__[element_name], Element):
+                names.add(element_name)
+        for element_name in self.__dict__:
+            if isinstance(self.__dict__[element_name], Element):
+                names.add(element_name)
+        return names
 
-    @abstractmethod
-    def get_state(self):
-        pass
+    def fill(self, data, stop=False):
+        if stop:
+            return
+        _names = self._get_names()
+        for _k, _v in data.items():
+            if _v is not None and _k in _names:
+                if self.stop_propagation:
+                    getattr(self, _k).fill(_v, stop=True)
+                else:
+                    getattr(self, _k).fill(_v)
+
+    def get_state(self, stop=False):
+        """
+        :return:  dict with data to check state or pass to ``fill`` method
+        """
+        if stop:
+            return
+        _names = self._get_names()
+        state = {}
+        for name in _names:
+            if self.stop_propagation:
+                s = getattr(self, name).get_state(stop=True)
+                if s is not None:
+                    state[name] = s
+            else:
+                state[name] = getattr(self, name).get_state()
+        return state

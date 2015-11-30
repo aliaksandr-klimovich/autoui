@@ -7,23 +7,23 @@ from autoui.exceptions import AutoUIException
 # from autoui.find import Find
 
 
-class BaseSectionMeta(ABCMeta):
-    def __new__(mcl, name, bases, nmspc):
-        if '_element' in nmspc and name != 'BaseSection':
-            raise AutoUIException('`_element` attribute in classes that inherit `BaseSection` is reserved by framework')
-        if 'search_with_driver' in nmspc and type(nmspc['search_with_driver']) is not bool:
-            raise AutoUIException('`search_with_driver` class attribute must be of `bool` type')
-
-        cl = super(BaseSectionMeta, mcl).__new__(mcl, name, bases, nmspc)
-
-        _names = []
-        for attr in nmspc:
-            cl_dict = cl.__dict__
-            if isinstance(cl_dict[attr], Element):
-                _names.insert(0, attr)
-        cl._names = _names
-
-        return cl
+# class BaseSectionMeta(ABCMeta):
+#     def __new__(mcl, name, bases, nmspc):
+#         if '_element' in nmspc and name != 'BaseSection':
+#             raise AutoUIException('`_element` attribute in classes that inherit `BaseSection` is reserved by framework')
+#         if 'search_with_driver' in nmspc and type(nmspc['search_with_driver']) is not bool:
+#             raise AutoUIException('`search_with_driver` class attribute must be of `bool` type')
+#
+#         cl = super(BaseSectionMeta, mcl).__new__(mcl, name, bases, nmspc)
+#
+#         _names = []
+#         for attr in nmspc:
+#             cl_dict = cl.__dict__
+#             if isinstance(cl_dict[attr], Element):
+#                 _names.insert(0, attr)
+#         cl._names = _names
+#
+#         return cl
 
 
 class BaseSection(Element):
@@ -41,7 +41,7 @@ class BaseSection(Element):
     It may be useful if you have to obtain names of elements that are located this ``Find`` class.
     However it does not guarantee receiving names of dynamic elements.
     """
-    __metaclass__ = BaseSectionMeta
+    # __metaclass__ = BaseSectionMeta
     _element = None
     _names = None
     search_with_driver = False
@@ -52,7 +52,7 @@ class BaseSection(Element):
         names = []
         _dict = cls.__dict__
         for element_name in _dict:
-            if isinstance(_dict[element_name], Find):
+            if isinstance(_dict[element_name], Element):
                 names.append(element_name)
         return names
 

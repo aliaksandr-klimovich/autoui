@@ -8,3 +8,7 @@ class AutoUIWarning(Warning):
 
 class InvalidLocatorException(AutoUIException):
     pass
+
+
+class AttributeNotPermittedException(AutoUIException):
+    pass
