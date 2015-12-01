@@ -2,8 +2,6 @@ from inspect import isclass
 
 from selenium.webdriver.common.by import By
 
-from autoui.exceptions import AutoUIException
-
 
 class Locator(object):
     def __init__(self, by, value):

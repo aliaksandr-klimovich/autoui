@@ -2,11 +2,12 @@ from unittest import TestCase
 
 from mock import Mock, call
 from nose.tools import eq_
+from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element, Elements, Fillable
 from autoui.elements.common import Input
-from autoui.exceptions import InvalidLocatorException, AttributeNotPermittedException
+from autoui.exceptions import InvalidLocator, AttributeNotPermitted
 from autoui.locators import XPath
 
 
@@ -16,9 +17,13 @@ class BaseTestCase(TestCase):
         self.driver = Mock(name='driver')
 
         self.web_element = Mock(name='web_element')
+        self.web_element._spec_class = WebElement
         self.web_element_inh = Mock(name='web_element_inh')
+        self.web_element_inh._spec_class = WebElement
         self.web_element_inh_2 = Mock(name='web_element_inh_2')
+        self.web_element_inh_2._spec_class = WebElement
         self.web_element_inh_3 = Mock(name='web_element_inh_3')
+        self.web_element_inh_3._spec_class = WebElement
 
         self.web_element.find_element = Mock(return_value=self.web_element_inh)
         self.web_element_inh.find_element = Mock(return_value=self.web_element_inh_2)
@@ -32,7 +37,23 @@ class BaseTestCase(TestCase):
 
 
 class TestElement(BaseTestCase):
-    def test_basic(self):
+    def test_declaration(self):
+        class CustomElement(Element):
+            element = Element(XPath(''))
+
+        class Section(Element):
+            element = Element(XPath(''))
+            custom_element = CustomElement(XPath(''))
+
+        class Page(object):
+            section = Section(XPath(''))
+            element = Element(XPath(''))
+            custom_element = CustomElement(XPath(''))
+
+    def test_from_2_locators_first_of_instance_is_used(self):
+        pass
+
+    def test_page_with_custom_element(self):
         class CustomElement(Element):
             pass
 
@@ -45,19 +66,19 @@ class TestElement(BaseTestCase):
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
     def test_incorrect_locator_type__pass_instance(self):
-        with self.assertRaises(InvalidLocatorException) as e:
+        with self.assertRaises(InvalidLocator) as e:
             class Page(object):
                 locator = Element('value')
         eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `str`')
 
     def test_incorrect_locator_type__pass_class(self):
-        with self.assertRaises(InvalidLocatorException) as e:
+        with self.assertRaises(InvalidLocator) as e:
             class Page(object):
-                locator = Element('value')
+                locator = Element(str)
         eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `str`')
 
     def test_pass_nothing(self):
-        with self.assertRaises(InvalidLocatorException) as e:
+        with self.assertRaises(InvalidLocator) as e:
             class Page:
                 locator = Element()
 
@@ -115,9 +136,13 @@ class TestElement(BaseTestCase):
     #     self.web_element.find_element.assert_not_called()
 
     def test_not_permitted_attribute(self):
-        with self.assertRaises(AttributeNotPermittedException):
+        with self.assertRaises(AttributeNotPermitted):
             class Section(Element):
                 web_element = None
+
+    def test_not_permitted_attribute_from_elements_not_affected(self):
+        class Section(Element):
+            web_elements = None
 
     def test_inherited_fillable_elements(self):
         class Section2(Element, Fillable):
@@ -228,9 +253,57 @@ class TestElement(BaseTestCase):
         result_dict = {'s1_el1': 's1_el1_value'}
         eq_(result_dict, state)
 
+    def test_replace_web_element_of_instance_at_runtime(self):
+        pass
+
+    def test_search_with_driver_must_be_of_bool_type(self):
+        pass
+
 
 class TestElements(BaseTestCase):
+    def test_declaration(self):
+        pass
+
+    def test_page_with_custom_elements(self):
+        pass
+
     def test_not_permitted_attribute(self):
-        with self.assertRaises(AttributeNotPermittedException):
+        with self.assertRaises(AttributeNotPermitted):
             class Section(Elements):
                 web_elements = None
+
+    def test_not_permitted_attribute_from_element_not_affected(self):
+        class Section(Elements):
+            web_element = None
+
+    def test_finding_elements_with_elements(self):
+        class InnerStructure(Elements):
+            pass
+
+        class OuterStructure(Elements):
+            inner_structure = InnerStructure(XPath(''))
+
+        class Page(object):
+            outer_structure = OuterStructure(XPath(''))
+
+        # rewrite _get_finder method ?
+        pass
+
+
+class TestCustomElements(BaseTestCase):
+    def test_button(self):
+        pass
+
+    def test_buttons(self):
+        pass
+
+    def test_link(self):
+        pass
+
+    def test_input(self):
+        pass
+
+
+class TestAbstract(TestCase):
+    def test_fillable_custom_element_must_have_overwritten_methods(self):
+        pass

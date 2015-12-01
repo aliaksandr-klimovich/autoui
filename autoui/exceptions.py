@@ -6,9 +6,13 @@ class AutoUIWarning(Warning):
     pass
 
 
-class InvalidLocatorException(AutoUIException):
+class InvalidLocator(AutoUIException):
     pass
 
 
-class AttributeNotPermittedException(AutoUIException):
+class AttributeNotPermitted(AutoUIException):
+    pass
+
+
+class InvalidWebElementInstance(AutoUIWarning):
     pass

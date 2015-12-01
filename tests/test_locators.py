@@ -7,20 +7,20 @@ from autoui.locators import Locator, XPath, CSS, ID
 
 
 class TestLocatorInit(TestCase):
-    def test_basic_locator(self):
+    def test_declaration(self):
         Locator(By.ID, 'value')
 
-    def test_basic_id_locator(self):
+    def test_id_locator(self):
         id = ID('value')
         eq_(id.by, By.ID)
         eq_(id.value, 'value')
 
-    def test_basic_css_locator(self):
+    def test_css_locator(self):
         css = CSS('value')
         eq_(css.by, By.CSS_SELECTOR)
         eq_(css.value, 'value')
 
-    def test_basic_xpath_locator(self):
+    def test_xpath_locator(self):
         xpath = XPath('value')
         eq_(xpath.by, By.XPATH)
         eq_(xpath.value, 'value')
@@ -32,9 +32,6 @@ class TestLocatorInit(TestCase):
     def test_invalid_value_type(self):
         with self.assertRaises(TypeError):
             Locator('id', True)
-
-    def test_derived_class_basic(self):
-        XPath('value')
 
     def test_derived_class_basic_invalid_value_type(self):
         with self.assertRaises(TypeError):

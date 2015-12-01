@@ -1,19 +1,20 @@
 from abc import ABCMeta
 from inspect import isclass
+from warnings import warn
+
+from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
-from autoui.exceptions import InvalidLocatorException, AttributeNotPermittedException
+from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
 from autoui.locators import Locator
 
 
 class ElementMeta(ABCMeta):
     def __new__(mcl, name, bases, nmspc):
         if 'web_element' in nmspc and name != 'Element' and Element in bases:
-            print bases, nmspc
-            raise AttributeNotPermittedException('`web_element` attribute is reserved by framework')
+            raise AttributeNotPermitted('`web_element` attribute is reserved by framework')
         if 'web_elements' in nmspc and name != 'Elements' and Elements in bases:
-            print bases, nmspc
-            raise AttributeNotPermittedException('`web_elements` attribute is reserved by framework')
+            raise AttributeNotPermitted('`web_elements` attribute is reserved by framework')
         return super(ElementMeta, mcl).__new__(mcl, name, bases, nmspc)
 
 
@@ -21,12 +22,13 @@ class Element(object):
     __metaclass__ = ElementMeta
     web_element = None
     locator = None
-    search_with_driver = None
+    search_with_driver = False
 
     def __init__(self, locator=None):
         """
         :param locator: obligatory instance of class ``Locator``
         """
+        # check to not override default locator
         if locator is not None:
             self.locator = locator
         self._validate_locator()
@@ -39,16 +41,17 @@ class Element(object):
 
     def _validate_locator(self):
         if not isinstance(self.locator, Locator):
-            raise InvalidLocatorException('`locator` must be instance of class `Locator`, got `{}`'.format(
+            raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
                 self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
 
     def _get_finder(self, instance, owner):
-        if instance is not None and hasattr(instance, 'web_element') and instance.web_element \
-                and not (hasattr(self, 'search_with_driver') and self.search_with_driver is True):
-            finder = instance.web_element
-        else:
-            finder = get_driver()
-        return finder
+        if instance is not None and hasattr(instance, 'web_element'):
+            if not isinstance(instance.web_element, WebElement):
+                warn('`web_element` instance not subclasses `WebElement` in {} at runtime'.format(
+                    instance.__class__.__name__), InvalidWebElementInstance)
+            elif not (hasattr(self, 'search_with_driver') and self.search_with_driver is True):
+                return instance.web_element
+        return get_driver()
 
 
 class Elements(Element):
@@ -61,10 +64,20 @@ class Elements(Element):
         return self
 
 
-class Fillable:
+class Fillable(object):
+    """
+    Subclass it to make element fillable.
+    Do not forget override ``fill`` and ``get_state`` methods.
+    This methods should be compatible,
+    i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
+    """
+    __metaclass__ = ABCMeta
     stop_propagation = False
 
     def _get_names(self):
+        """
+        Returns names (strings) of class and instance attributes that are instance of ``Element`` class.
+        """
         names = set()
         for element_name in self.__class__.__dict__:
             if isinstance(self.__class__.__dict__[element_name], Element):
@@ -75,6 +88,11 @@ class Fillable:
         return names
 
     def fill(self, data, stop=False):
+        """
+        Recursively fills all elements with data.
+        :param data: dictionary to fill with keys as elements names and values as fillable data
+        :param stop: reserved for recursion stop
+        """
         if stop:
             return
         _names = self._get_names()
@@ -87,7 +105,7 @@ class Fillable:
 
     def get_state(self, stop=False):
         """
-        :return:  dict with data to check state or pass to ``fill`` method
+        :return:  dict with state data, compatible with ``fill`` method
         """
         if stop:
             return
@@ -95,6 +113,7 @@ class Fillable:
         state = {}
         for name in _names:
             if self.stop_propagation:
+                # do not add anything if enter in stopped element
                 s = getattr(self, name).get_state(stop=True)
                 if s is not None:
                     state[name] = s
