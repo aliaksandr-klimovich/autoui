@@ -45,13 +45,19 @@ class Element(object):
                 self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
 
     def _get_finder(self, instance, owner):
-        if instance is not None and hasattr(instance, 'web_element'):
+        self._validate_search_with_driver()
+        if instance is not None and isinstance(instance, Element) and hasattr(instance, 'web_element'):
             if not isinstance(instance.web_element, WebElement):
-                warn('`web_element` instance not subclasses `WebElement` in {} at runtime'.format(
-                    instance.__class__.__name__), InvalidWebElementInstance)
+                warn('`web_element` instance not subclasses `WebElement` in `{}` object at runtime'.format(
+                    instance.__class__.__name__, instance), InvalidWebElementInstance)
             elif not (hasattr(self, 'search_with_driver') and self.search_with_driver is True):
                 return instance.web_element
         return get_driver()
+
+    def _validate_search_with_driver(self):
+        t = type(self.search_with_driver)
+        if t is not bool:
+            raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
 
 
 class Elements(Element):
