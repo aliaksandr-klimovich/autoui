@@ -1,25 +1,35 @@
-from abc import ABCMeta
 from inspect import isclass
 from warnings import warn
 
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
-from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
+from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, AttributeNotPermitted
 from autoui.locators import Locator
 
 
-class ElementMeta(ABCMeta):
+class _Abstract(type):
     def __new__(mcl, name, bases, nmspc):
-        if 'web_element' in nmspc and name != 'Element' and Element in bases:
-            raise AttributeNotPermitted('`web_element` attribute is reserved by framework')
-        if 'web_elements' in nmspc and name != 'Elements' and Elements in bases:
-            raise AttributeNotPermitted('`web_elements` attribute is reserved by framework')
-        return super(ElementMeta, mcl).__new__(mcl, name, bases, nmspc)
+        if name != 'Element' \
+                and any([True if base.__name__ == 'Element' else False for base in bases]) \
+                and 'web_element' in nmspc:
+            raise AttributeNotPermitted('`web_element` attribute is reserved by framework, '
+                                        'error found in `{}` class'.format(name))
+        if name != 'Elements' \
+                and any([True if base.__name__ == 'Elements' else False for base in bases]) \
+                and 'web_elements' in nmspc:
+            raise AttributeNotPermitted('`web_elements` attribute is reserved by framework, '
+                                        'error found in `{}` class'.format(name))
+        # if name != 'Fillable' \
+        #         and any([True if base.__name__ == 'Fillable' else False for base in bases]) \
+        #         and not ('fill' in nmspc and 'get_state' in nmspc):
+        #     raise MethodNotOverridden('you must override all abstract methods in class `{}` of `Fillable`'.format(
+        #         name))
+        return type.__new__(mcl, name, bases, nmspc)
 
 
 class Element(object):
-    __metaclass__ = ElementMeta
+    __metaclass__ = _Abstract
     web_element = None
     locator = None
     search_with_driver = False
@@ -77,7 +87,6 @@ class Fillable(object):
     This methods should be compatible,
     i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
     """
-    __metaclass__ = ABCMeta
     stop_propagation = False
 
     def _get_names(self):

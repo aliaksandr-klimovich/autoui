@@ -321,13 +321,25 @@ class TestElement(_BaseTestCase):
 
 
 class TestElements(_BaseTestCase):
-    @skip('Not implemented')
     def test_declaration(self):
-        pass
+        class Sections(Elements):
+            pass
 
-    @skip('Not implemented')
+        sections = Sections(XPath(''))
+
     def test_page_with_custom_elements(self):
-        pass
+        l = XPath('.')
+
+        class Sections(Elements):
+            pass
+
+        class Page(object):
+            sections = Sections(l)
+
+        page = Page()
+        s = page.sections
+        eq_(s.web_elements, [self.web_element, ])
+        self.driver.find_elements.assert_called_once_with(l.by, l.value)
 
     def test_not_permitted_attribute(self):
         with self.assertRaises(AttributeNotPermitted):
@@ -338,7 +350,6 @@ class TestElements(_BaseTestCase):
         class Section(Elements):
             web_element = None
 
-    # @skip('Not implemented')
     def test_finding_elements_with_elements(self):
         class InnerStructure(Elements):
             pass
@@ -349,7 +360,7 @@ class TestElements(_BaseTestCase):
         class Page(object):
             outer_structure = OuterStructure(XPath(''))
 
-        # rewrite _get_finder method ?
+        # override _get_finder method ?
         # won't fix, it is normal thing that i can find elements only with single element
         # and if i want to find elements with elements i should implement
         # this feature by myself in custom elements
@@ -361,24 +372,8 @@ class TestElements(_BaseTestCase):
 
 
 class TestCustomElements(_BaseTestCase):
-    @skip('Not implemented')
-    def test_button(self):
-        pass
-
-    @skip('Not implemented')
-    def test_buttons(self):
-        pass
-
-    @skip('Not implemented')
-    def test_link(self):
-        pass
-
-    @skip('Not implemented')
-    def test_input(self):
-        pass
+    pass
 
 
 class TestAbstract(TestCase):
-    @skip('Not implemented')
-    def test_fillable_custom_element_must_have_overwritten_methods(self):
-        pass
+    pass

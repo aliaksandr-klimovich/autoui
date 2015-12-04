@@ -14,5 +14,9 @@ class AttributeNotPermitted(AutoUIException):
     pass
 
 
+class MethodNotOverridden(AutoUIException):
+    pass
+
+
 class InvalidWebElementInstance(AutoUIWarning):
     pass
