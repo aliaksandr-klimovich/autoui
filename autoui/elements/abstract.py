@@ -2,6 +2,8 @@ from inspect import isclass
 from warnings import warn
 
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import wait, expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
 from autoui.driver import get_driver
 from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, AttributeNotPermitted
@@ -34,7 +36,7 @@ class Element(object):
     locator = None
     search_with_driver = False
 
-    def __init__(self, locator=None):
+    def __init__(self, locator=None, decorators=()):
         """
         :param locator: obligatory instance of class ``Locator``
         """
@@ -43,11 +45,20 @@ class Element(object):
             self.locator = locator
         self._validate_locator()
 
+        for decorator in decorators[::-1]:
+            self._find = decorator(self._find)
+
     def __get__(self, instance, owner):
         finder = self._get_finder(instance, owner)
-        web_element = finder.find_element(self.locator.by, self.locator.value)
+        web_element = self._find(finder, self.locator)
         self.web_element = web_element
         return self
+
+    def _find(self, finder, locator):
+        """
+        must return web element
+        """
+        return finder.find_element(*locator.get())
 
     def _validate_locator(self):
         if not isinstance(self.locator, Locator):
@@ -75,7 +86,7 @@ class Elements(Element):
 
     def __get__(self, instance, owner):
         finder = self._get_finder(instance, owner)
-        web_elements = finder.find_elements(self.locator.by, self.locator.value)
+        web_elements = finder.find_elements(*self.locator.get())
         self.web_elements = web_elements
         return self
 

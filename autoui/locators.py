@@ -18,6 +18,9 @@ class Locator(object):
     def __str__(self):
         return self.by + '=' + self.value
 
+    def get(self):
+        return self.by, self.value
+
 
 class ID(Locator):
     def __init__(self, value):

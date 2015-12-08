@@ -50,3 +50,15 @@ class TestLocatorAttribute(TestCase):
         css = CSS(value)
         eq_(css.by, By.CSS_SELECTOR)
         eq_(css.value, value)
+
+
+class TestLocatorMethods(TestCase):
+    def test_get_method(self):
+        value = 'v'
+        xpath = XPath(value)
+        eq_(xpath.get(), (By.XPATH, value,))
+
+    def test_str_method(self):
+        value = 'value'
+        xpath = XPath(value)
+        eq_(str(xpath), 'xpath=value')

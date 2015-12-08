@@ -1,44 +1,17 @@
-from unittest import TestCase, skip
+from unittest import TestCase
 from warnings import catch_warnings
 
 from mock import Mock, call
 from nose.tools import eq_
-from selenium.webdriver.remote.webelement import WebElement
 
-from autoui.driver import get_driver
 from autoui.elements.abstract import Element, Elements, Fillable
 from autoui.elements.common import Input
 from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
 from autoui.locators import XPath
+from tests.base import BaseTestCase
 
 
-class _BaseTestCase(TestCase):
-    def setUp(self):
-        self.xpath = XPath('.')
-        self.driver = Mock(name='driver')
-
-        self.web_element = Mock(name='web_element')
-        self.web_element._spec_class = WebElement
-        self.web_element_inh = Mock(name='web_element_inh')
-        self.web_element_inh._spec_class = WebElement
-        self.web_element_inh_2 = Mock(name='web_element_inh_2')
-        self.web_element_inh_2._spec_class = WebElement
-        self.web_element_inh_3 = Mock(name='web_element_inh_3')
-        self.web_element_inh_3._spec_class = WebElement
-
-        self.web_element.find_element = Mock(return_value=self.web_element_inh)
-        self.web_element_inh.find_element = Mock(return_value=self.web_element_inh_2)
-        self.web_element_inh_2.find_element = Mock(return_value=self.web_element_inh_3)
-
-        get_driver._driver = self.driver
-        get_driver._driver.find_element = Mock(return_value=self.web_element)
-        get_driver._driver.find_elements = Mock(return_value=[self.web_element, ])
-
-    def tearDown(self):
-        get_driver._driver = None
-
-
-class TestElement(_BaseTestCase):
+class TestElement(BaseTestCase):
     def test_declaration(self):
         class CustomElement(Element):
             element = Element(XPath(''))
@@ -320,7 +293,7 @@ class TestElement(_BaseTestCase):
         eq_(e.exception.message, '`search_with_driver` must be of `bool` type, got `NoneType`')
 
 
-class TestElements(_BaseTestCase):
+class TestElements(BaseTestCase):
     def test_declaration(self):
         class Sections(Elements):
             pass
@@ -371,7 +344,7 @@ class TestElements(_BaseTestCase):
         assert issubclass(w[-1].category, InvalidWebElementInstance)
 
 
-class TestCustomElements(_BaseTestCase):
+class TestCustomElements(BaseTestCase):
     pass
 
 

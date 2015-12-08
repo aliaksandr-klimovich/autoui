@@ -1,6 +1,12 @@
 from autoui.elements.abstract import Element, Elements, Fillable
 
 
+class Text(Element):
+    @property
+    def text(self):
+        return self.web_element.text
+
+
 class Button(Element):
     def click(self):
         self.web_element.click()
@@ -17,15 +23,12 @@ class Link(Element):
 
 
 class Links(Elements):
-    def get_hyper_references(self):
+    @property
+    def hrefs(self):
         return [element.get_attribute('href') for element in self.web_elements]
 
 
 class Input(Element, Fillable):
-    def type(self, text):
-        self.web_element.clear()
-        self.web_element.send_keys(text)
-
     def fill(self, data, stop=False):
         self.type(data)
 
@@ -34,3 +37,25 @@ class Input(Element, Fillable):
 
     def send_keys(self, data):
         self.web_element.send_keys(data)
+
+    def type(self, text):
+        self.web_element.clear()
+        self.web_element.send_keys(text)
+
+
+class Image(Element):
+    @property
+    def size(self):
+        return self.web_element.size
+
+    @property
+    def width(self):
+        return self.size['width']
+
+    @property
+    def height(self):
+        return self.size['height']
+
+
+class Select(Element):
+    pass

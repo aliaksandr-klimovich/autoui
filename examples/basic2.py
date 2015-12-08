@@ -9,7 +9,7 @@ class MinskTheBy(BasePage):
     links = Links(XPath('//a'))
 
     def get_all_links(self):
-        return self.links.get_hyper_references()
+        return self.links.hrefs
 
 
 if __name__ == "__main__":
