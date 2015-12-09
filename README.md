@@ -62,7 +62,7 @@ class Page(BasePage):
     custom_element = CustomElement()
 ```
 
-### Feature 3: Elements can be located in other elements
+### Feature 3: Element can be located in (with) other element
 pass
 
 ## History
