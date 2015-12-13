@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from mock import Mock
-
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver

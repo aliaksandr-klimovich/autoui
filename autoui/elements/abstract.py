@@ -2,8 +2,6 @@ from inspect import isclass
 from warnings import warn
 
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import wait, expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from autoui.driver import get_driver
 from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, AttributeNotPermitted
@@ -139,7 +137,7 @@ class Fillable(object):
         state = {}
         for name in _names:
             if self.stop_propagation:
-                # do not add anything if enter in stopped element
+                # do not add anything on enter in stopped element
                 s = getattr(self, name).get_state(stop=True)
                 if s is not None:
                     state[name] = s
