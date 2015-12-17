@@ -63,7 +63,7 @@ class Page(BasePage):
 ```
 
 ### Feature 3: Element can be located in/with other element
-... in progress ...
+in progress ...
 
 ### Feature 4: Fillable elements
 To do fill fields more easy you can use dict with predefined values.
@@ -118,5 +118,5 @@ After that, if section contains other elements, i.e. sections,
 than the algorithm will not look inside them.
 
 
-## History
-Development in progress
+### Feature 5: Can pass custom waiter to the element
+in progress ...

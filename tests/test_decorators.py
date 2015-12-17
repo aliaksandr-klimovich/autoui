@@ -1,9 +1,11 @@
+from unittest import skip
+
 from mock import Mock, call
 from nose.tools import eq_
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from autoui.decorators.abstract import fillable
-from autoui.decorators.common import until_presence_of_element_located
+from autoui.decorators.common import *
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
 from autoui.elements.common import Input
@@ -14,21 +16,65 @@ from tests.base import BaseTestCase
 class TestUntil(BaseTestCase):
     def setUp(self):
         super(TestUntil, self).setUp()
+
+        # do not forget that raises `StopIteration` on third pass
         get_driver._driver.find_element = Mock(side_effect=[NoSuchElementException(), self.web_element])
 
     def tearDown(self):
         super(TestUntil, self).tearDown()
 
-    def test_until(self):
+    def test_until_presence_of_element_located(self):
         class Page(object):
-            element = Element(XPath('.//'), (until_presence_of_element_located(0.1), ))
+            element = Element(XPath('.//'), (until_presence_of_element_located(0.1, 0.2), ))
 
         p = Page()
         with self.assertRaises(TimeoutException):
             p.element
 
         class Page(object):
-            element = Element(XPath('.//'), (until_presence_of_element_located(0.7), ))
+            element = Element(XPath('.//'), (until_presence_of_element_located(0.2, 0.1), ))
+
+        p = Page()
+        e = p.element
+        assert e.web_element is self.web_element
+
+    def test_until_visibility_of_element_located(self):
+        self.web_element.is_displayed.return_value = True
+
+        class Page(object):
+            element = Element(XPath('.//'), (until_visibility_of_element_located(0.1, 0.2), ))
+
+        p = Page()
+        with self.assertRaises(TimeoutException):
+            p.element
+
+        class Page(object):
+            element = Element(XPath('.//'), (until_visibility_of_element_located(0.2, 0.1), ))
+
+        p = Page()
+        e = p.element
+        assert e.web_element is self.web_element
+
+    def test_until_invisibility_of_element_located(self):
+        # prepare
+        self.web_element.is_displayed.return_value = True
+        get_driver._driver.find_element = Mock(side_effect=[self.web_element])
+
+        # test
+        class Page(object):
+            element = Element(XPath('.//'), (until_invisibility_of_element_located(0.1, 0.2), ))
+
+        p = Page()
+        with self.assertRaises(TimeoutException):
+            p.element
+
+        # prepare
+        self.web_element.is_displayed.return_value = False
+        get_driver._driver.find_element = Mock(side_effect=[self.web_element])
+
+        # test
+        class Page(object):
+            element = Element(XPath('.//'), (until_invisibility_of_element_located(0.2, 0.1), ))
 
         p = Page()
         e = p.element
