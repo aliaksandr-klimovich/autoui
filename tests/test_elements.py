@@ -3,6 +3,7 @@ from warnings import catch_warnings
 
 from mock import Mock, call
 from nose.tools import eq_
+from selenium.common.exceptions import StaleElementReferenceException
 
 from autoui.elements.abstract import Element, Elements, Fillable
 from autoui.elements.common import Input
@@ -291,6 +292,31 @@ class TestElement(BaseTestCase):
             s = Page.section
 
         eq_(e.exception.message, '`search_with_driver` must be of `bool` type, got `NoneType`')
+
+    def test_stale_element_exception(self):
+        web_element_1 = Mock(return_value=self.web_element_inh, name='web_element_1')
+        web_element_2 = Mock(return_value=self.web_element_inh, name='web_element_2')
+
+        self.web_element.find_element.side_effect = [
+            web_element_1,
+            StaleElementReferenceException(),
+            web_element_2]
+
+        class Section(Element):
+            locator = XPath('.')
+            element = Element(XPath('.'))
+
+            def test_element(self):
+                el1 = self.element
+                eq_(el1.web_element, web_element_1)
+                el2 = self.element
+                eq_(el2.web_element, web_element_2)
+
+        class Page(object):
+            section = Section()
+
+        page = Page()
+        page.section.test_element()
 
 
 class TestElements(BaseTestCase):
