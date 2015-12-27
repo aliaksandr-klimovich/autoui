@@ -20,3 +20,10 @@ class MethodNotOverridden(AutoUIException):
 
 class InvalidWebElementInstance(AutoUIWarning):
     pass
+
+
+class DebugException(AutoUIException):
+    """
+    for debug
+    """
+    pass

@@ -7,8 +7,6 @@ The goal is to show how to implement custom page object pattern in python.
 This project was inspired by `webium` project and structural patterns in java.
 It is not designed for production usage. It's only my own approach to test web sites.
 
-Author: Alex Klimovich
-
 ## Requirements
 - python 2.7.10
 - selenium 2.48.0
@@ -16,9 +14,7 @@ Author: Alex Klimovich
 - mock 1.3.0 (for internal tests)
 
 ## Usage
-
 ### Basic test
-
 ```python
 from autoui.base import BasePage
 from autoui.elements.common import Button, Input
@@ -63,7 +59,27 @@ class Page(BasePage):
 ```
 
 ### Feature 3: Element can be located in/with other element
-in progress ...
+By default `autoui` looks for new element with parent if exists.
+For example:
+```python
+class Page:
+    section = Section()
+
+class Section(Element):
+    locator = XPath('section')
+    element = Input(XPath('element'))
+```
+`Page().section.element` will look for section with driver and element with section.
+If you want to find element with driver instead of section - use
+`search_with_driver = True` attribute for current section. You can use this trick:
+```python
+class Section(Element):
+    locator = XPath('section')
+    element = Input(XPath('element'))
+    element.search_with_driver = True
+```
+to find single element in section with driver.
+
 
 ### Feature 4: Fillable elements
 To do fill fields more easy you can use dict with predefined values.
@@ -117,6 +133,8 @@ by filling the attribute: `stop_propagation = True` in custom element class.
 After that, if section contains other elements, i.e. sections,
 than the algorithm will not look inside them.
 
-
 ### Feature 5: Can pass custom waiter to the element
-in progress ...
+in progress...
+
+### Feature 6: Finding parent stale element is the default behaviour
+in progress...

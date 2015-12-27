@@ -303,8 +303,8 @@ class TestElement(BaseTestCase):
             web_element_2]
 
         class Section(Element):
-            locator = XPath('.')
-            element = Element(XPath('.'))
+            locator = XPath('section_locator')
+            element = Element(XPath('element_locator'))
 
             def test_element(self):
                 el1 = self.element

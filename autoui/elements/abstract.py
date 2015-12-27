@@ -1,10 +1,11 @@
 from inspect import isclass
 from warnings import warn
 
+from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
-from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, AttributeNotPermitted
+from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, AttributeNotPermitted, DebugException
 from autoui.locators import Locator
 
 
@@ -47,14 +48,31 @@ class Element(object):
             self._find = decorator(self._find)
 
     def __get__(self, instance, owner):
+        self._instance = instance
+        self._owner = owner
+
         finder = self._get_finder(instance, owner)
-        web_element = self._find(finder, self.locator)
+
+        try:
+            web_element = self._find(finder, self.locator)
+        except StaleElementReferenceException:
+            try:
+                if hasattr(instance, '_instance') and hasattr(instance, '_owner'):
+                    instance.__get__(instance._instance, instance._owner)
+                else:
+                    raise DebugException("Need to investigate current problem")
+                web_element = self._find(finder, self.locator)
+            except:
+                raise
+
         self.web_element = web_element
         return self
 
     def _find(self, finder, locator):
         """
         must return web element
+        :param finder: web element or driver
+        :param locator: instance of class Locator
         """
         return finder.find_element(*locator.get())
 
@@ -107,7 +125,7 @@ class Fillable(object):
             if isinstance(self.__class__.__dict__[element_name], Element):
                 names.add(element_name)
         for element_name in self.__dict__:
-            if isinstance(self.__dict__[element_name], Element):
+            if isinstance(self.__dict__[element_name], Element) and element_name not in ('_instance', '_owner'):
                 names.add(element_name)
         return names
 
