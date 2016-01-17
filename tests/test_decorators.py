@@ -23,6 +23,14 @@ class TestUntil(BaseTestCase):
     def tearDown(self):
         super(TestUntil, self).tearDown()
 
+    def test_decorator_work_without_params(self):
+        class Page(object):
+            element = Element(XPath('.//*'), (until_invisibility_of_element_located(), ))
+
+        p = Page()
+        p.element
+        # TODO: check that default values of timeout are used
+
     def test_until_presence_of_element_located(self):
         class Page(object):
             element = Element(XPath('.//'), (until_presence_of_element_located(0.1, 0.2), ))
