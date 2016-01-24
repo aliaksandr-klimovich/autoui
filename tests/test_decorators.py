@@ -1,11 +1,9 @@
-from unittest import skip
-
 from mock import Mock, call
 from nose.tools import eq_
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from autoui.decorators.abstract import fillable
-from autoui.decorators.common import *
+from autoui.waiters import *
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
 from autoui.elements.common import Input
@@ -86,7 +84,7 @@ class TestUntil(BaseTestCase):
 
         p = Page()
         e = p.element
-        assert e.web_element is self.web_element
+        assert e.web_element is None
 
 
 class TestFillableDecorator(BaseTestCase):

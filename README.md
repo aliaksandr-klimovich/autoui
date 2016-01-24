@@ -8,10 +8,12 @@ This project was inspired by `webium` project and structural patterns in java.
 It is not designed for production usage. It's only my own approach to test web sites.
 
 ## Requirements
-- python 2.7.10
-- selenium 2.48.0
-- nose 1.3.7 (for internal tests)
-- mock 1.3.0 (for internal tests)
+- python 2.7
+- selenium
+- nose (for internal tests)
+- mock (for internal tests)
+
+See `requirements.txt` for more details.
 
 ## Usage
 ### Basic test
@@ -137,4 +139,16 @@ than the algorithm will not look inside them.
 in progress...
 
 ### Feature 6: Finding parent stale element is the default behaviour
-in progress...
+
+Realized in `__get__` method of `Element` class.
+
+Let's imagine that we have next situation.
+I have `Page` class, it contains `Section` class
+and the `Section` class contains `Element` inside.
+I do some work inside `Element` class having `web_element` reference.
+But in the middle of my work with element `Section` updates.
+Than I'll' have `StaleElementReferenceException` from `finder`.
+But what exactly I want to have? That the element can be found one again!
+If `Section` is updated than `__get__` method tries to obtain parent object
+to find it. After all `Section` will be found and I'll have chance to continue
+working with `Element`.

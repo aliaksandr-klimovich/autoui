@@ -9,7 +9,7 @@ from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, Attribu
 from autoui.locators import Locator
 
 
-class _Abstract(type):
+class _AbstractElement(type):
     def __new__(mcl, name, bases, nmspc):
         if name != 'Element' \
                 and any([True if base.__name__ == 'Element' else False for base in bases]) \
@@ -30,7 +30,7 @@ class _Abstract(type):
 
 
 class Element(object):
-    __metaclass__ = _Abstract
+    __metaclass__ = _AbstractElement
     web_element = None
     locator = None
     search_with_driver = False
@@ -133,7 +133,7 @@ class Fillable(object):
         """
         Recursively fills all elements with data.
         :param data: dictionary to fill with keys as elements names and values as fillable data
-        :param stop: reserved for recursion stop
+        :param stop: reserved for stop recursion
         """
         if stop:
             return
@@ -148,6 +148,7 @@ class Fillable(object):
     def get_state(self, stop=False):
         """
         :return:  dict with state data, compatible with ``fill`` method
+        :param stop: reserved for stop recursion
         """
         if stop:
             return

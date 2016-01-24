@@ -50,11 +50,11 @@ class Image(Element):
 
     @property
     def width(self):
-        return self.size['width']
+        return self.web_element.size['width']
 
     @property
     def height(self):
-        return self.size['height']
+        return self.web_element.size['height']
 
 
 class Select(Element):
