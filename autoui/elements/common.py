@@ -11,6 +11,10 @@ class Button(Element):
     def click(self):
         self.web_element.click()
 
+    @property
+    def name(self):
+        return self.web_element.text
+
 
 class Buttons(Elements):
     pass

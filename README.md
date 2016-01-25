@@ -12,6 +12,7 @@ It is not designed for production usage. It's only my own approach to test web s
 - selenium
 - nose (for internal tests)
 - mock (for internal tests)
+- firefox (for examples)
 
 See `requirements.txt` for more details.
 
@@ -64,12 +65,12 @@ class Page(BasePage):
 By default `autoui` looks for new element with parent if exists.
 For example:
 ```python
-class Page:
-    section = Section()
-
 class Section(Element):
     locator = XPath('section')
     element = Input(XPath('element'))
+
+class Page:
+    section = Section()
 ```
 `Page().section.element` will look for section with driver and element with section.
 If you want to find element with driver instead of section - use
@@ -79,6 +80,17 @@ class Section(Element):
     locator = XPath('section')
     element = Input(XPath('element'))
     element.search_with_driver = True
+```
+or
+```python
+class Section(Element):
+    locator = XPath('section')
+    element = Input(XPath('element'), search_with_driver=True)
+```
+or inside an element
+```python
+class CustomElement(Element):
+    search_with_driver = True
 ```
 to find single element in section with driver.
 

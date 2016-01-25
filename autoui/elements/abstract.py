@@ -35,7 +35,7 @@ class Element(object):
     locator = None
     search_with_driver = False
 
-    def __init__(self, locator=None, decorators=()):
+    def __init__(self, locator=None, decorators=(), search_with_driver=None):
         """
         :param locator: obligatory instance of class ``Locator``
         """
@@ -46,6 +46,10 @@ class Element(object):
 
         for decorator in decorators[::-1]:
             self._find = decorator(self._find)
+
+        # check to not override default search type
+        if search_with_driver is not None:
+            self.search_with_driver = search_with_driver
 
     def __get__(self, instance, owner):
         self._instance = instance

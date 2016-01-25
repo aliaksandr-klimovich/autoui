@@ -1,4 +1,5 @@
-from selenium.common.exceptions import StaleElementReferenceException
+from functools import wraps
+
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -8,54 +9,68 @@ POLL_FREQUENCY = 0.5
 
 class AbstractWaiter(object):
     def __init__(self, timeout=DEFAULT_TIMEOUT, poll_frequency=POLL_FREQUENCY):
+        """
+        Be careful with timeout, for nested decorator is end time from first entrance to most outer decorator
+        """
         self.timeout = timeout
         self.poll_frequency = poll_frequency
 
-    def wrapper(self, finder, locator):
-        return finder.find_element(locator.get())
+    def __call__(self, _find):
+        """
+        Decorated _find method of Element class
+
+        :param _find: by default if _find method from Element class,
+                      but is there are more than one decorator,
+                      than _find is other decorator
+        :return: wrapper of _find method or other decorator
+        """
+        @wraps(_find)
+        def wrapper(finder, locator):
+            return _find(finder, locator)
+        return wrapper
+
+
+class wait_until_element_is_visible(AbstractWaiter):
+    def __init__(self, action, timeout=DEFAULT_TIMEOUT, poll_frequency=POLL_FREQUENCY):
+        super(wait_until_element_is_visible, self).__init__(timeout, poll_frequency)
+        assert action in ('after', 'replace')
+        self.action = action
 
     def __call__(self, _find):
-        return self.wrapper
+        @wraps(_find)
+        def wrapper(finder, locator):
+            result = WebDriverWait(finder, self.timeout, self.poll_frequency). \
+                until(expected_conditions.visibility_of_element_located(locator.get()),
+                    'Searchable by `{}` element with `{}` is not visible during {} seconds'.format(
+                        locator,
+                        finder.__class__.__name__,
+                        self.timeout
+                    ))
+            if self.action == 'replace':
+                return result
+            if self.action == 'after':
+                return _find(finder, locator)
+        return wrapper
 
 
-class until_presence_of_element_located(AbstractWaiter):
-    def wrapper(self, finder, locator):
-        return WebDriverWait(finder, self.timeout, self.poll_frequency). \
-            until(expected_conditions.presence_of_element_located(locator.get()),
-                  message='')
-        # TODO: add formatted exception message
+class wait_until_element_is_invisible(AbstractWaiter):
+    def __init__(self, action, timeout=DEFAULT_TIMEOUT, poll_frequency=POLL_FREQUENCY):
+        super(wait_until_element_is_invisible, self).__init__(timeout, poll_frequency)
+        assert action in ('after', 'replace')
+        self.action = action
 
-
-class until_visibility_of_element_located(AbstractWaiter):
-    def wrapper(self, finder, locator):
-        class visibility_of_element_located(object):
-            def __init__(self, locator):
-                self.locator = locator
-
-            def __call__(self, finder):
-                try:
-                    element = expected_conditions._find_element(finder, self.locator)
-                    if expected_conditions._element_if_visible(element):
-                        return element
-                except StaleElementReferenceException:
-                    return False
-
-        return WebDriverWait(finder, self.timeout, self.poll_frequency). \
-            until(visibility_of_element_located(locator.get()),
-                  'Searchable by `{}` element with `{}` is not visible during {} seconds'.format(
-                      locator,
-                      finder.__class__.__name__,
-                      self.timeout
-                  ))
-
-
-class until_invisibility_of_element_located(AbstractWaiter):
-    """
-    Warning! This wrapper does not return `WebElement`!
-    """
-    def wrapper(self, finder, locator):
-
-        WebDriverWait(finder, self.timeout, self.poll_frequency). \
-            until(expected_conditions.invisibility_of_element_located(locator.get()),
-                  message='')
-        # TODO: add formatted exception message
+    def __call__(self, _find):
+        @wraps(_find)
+        def wrapper(finder, locator):
+            result = WebDriverWait(finder, self.timeout, self.poll_frequency). \
+                until(expected_conditions.invisibility_of_element_located(locator.get()),
+                    'Searchable by `{}` element with `{}` is still visible during {} seconds'.format(
+                        locator,
+                        finder.__class__.__name__,
+                        self.timeout
+                    ))
+            if self.action == 'replace':
+                return result
+            if self.action == 'after':
+                return _find(finder, locator)
+        return wrapper

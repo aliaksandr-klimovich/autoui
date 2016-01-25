@@ -80,12 +80,31 @@ class TestElement(BaseTestCase):
 
         eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `NoneType`')
 
-    def test_search_with_driver(self):
+    def test_search_with_driver__as_class_property(self):
         class Section1(Element):
             search_with_driver = True
 
         class Section2(Element):
             section1 = Section1(XPath('section1'))
+
+        class Page(object):
+            section2 = Section2(XPath('section2'))
+
+        section1_instance = Page.section2.section1
+        assert isinstance(section1_instance, Section1)
+        assert section1_instance.web_element is self.web_element
+        self.driver.find_element.assert_has_calls([
+            call('xpath', 'section2'),
+            call('xpath', 'section1'),
+        ])
+        self.web_element.find_element.assert_not_called()
+
+    def test_search_with_driver__as_argument_to_element(self):
+        class Section1(Element):
+            pass
+
+        class Section2(Element):
+            section1 = Section1(XPath('section1'), search_with_driver=True)
 
         class Page(object):
             section2 = Section2(XPath('section2'))
