@@ -13,22 +13,21 @@ from autoui.locators import Locator
 
 
 class Element(object):
-    def __init__(self, locator=None, search_with_driver=False, mixins=None):
+    locator = None
+    search_with_driver = False
+
+    def __init__(self, locator=None, search_with_driver=None, mixins=None):
         self.web_element = None
         self._instance = None
         self._owner = None
 
-        # validate `locator`
-        if not isinstance(locator, Locator):
-            raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
-                self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
-        self.locator = locator
+        if locator:
+            self.locator = locator
+        self._validate_locator()
 
-        # validate `search_with_driver`
-        t = type(search_with_driver)
-        if t is not bool:
-            raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
-        self.search_with_driver = search_with_driver
+        if search_with_driver:
+            self.search_with_driver = search_with_driver
+        self._validate_search_with_driver()
 
         if mixins:
             bases = [self.__class__]
@@ -59,7 +58,7 @@ class Element(object):
                 self.web_element = finder.find_element(*self.locator.get())
             except:
                 raise
-        self._validate_web_element(self.web_element)
+        self._validate_web_element()
         return self
 
     def _get_finder(self):
@@ -67,10 +66,20 @@ class Element(object):
             return self._instance.web_element
         return get_driver()
 
-    def _validate_web_element(self, web_element):
-        if not isinstance(web_element, WebElement):
+    def _validate_web_element(self):
+        if not isinstance(self.web_element, WebElement):
             warn('`web_element` instance not subclasses `WebElement` in `{}` object at runtime'.format(
                 self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
+
+    def _validate_locator(self):
+        if not isinstance(self.locator, Locator):
+            raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
+                self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
+
+    def _validate_search_with_driver(self):
+        t = type(self.search_with_driver)
+        if t is not bool:
+            raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()

@@ -26,10 +26,6 @@ class TestElement(BaseTestCase):
             element = Element(ID('5'))
             custom_element = CustomElement(ID('6'))
 
-        eq_(Page.element.locator, ID('5'))
-        eq_(Section.element.locator, ID('2'))
-        eq_(CustomElement.element.locator, ID('1'))
-
     def test_find(self):
         class Page(object):
             element = Element(self.xpath)
@@ -39,6 +35,19 @@ class TestElement(BaseTestCase):
         assert isinstance(element_instance, Element)
         assert element_instance.web_element is self.web_element
         assert element_instance._instance is page
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
+        self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_find__no_instance(self):
+        class Page(object):
+            element = Element(self.xpath)
+
+        element_instance = Page.element.find()
+        assert isinstance(element_instance, Element)
+        assert element_instance.web_element is self.web_element
+        assert element_instance._instance is None
         assert element_instance._owner is Page
         assert element_instance.locator is self.xpath
         assert element_instance.search_with_driver is False
@@ -58,8 +67,6 @@ class TestElement(BaseTestCase):
         assert element_instance.search_with_driver is False
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
-# ------------------------------------------
-
     def test_default_locator(self):
         class CustomSection(Element):
             locator = self.xpath
@@ -67,9 +74,7 @@ class TestElement(BaseTestCase):
         class Page(object):
             custom_section = CustomSection()
 
-        custom_section = Page.custom_section
-        assert isinstance(custom_section, CustomSection)
-        assert custom_section.web_element is self.web_element
+        Page().custom_section()
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
     def test_incorrect_locator_type__pass_instance(self):
@@ -106,20 +111,29 @@ class TestElement(BaseTestCase):
         class Section1(Element):
             search_with_driver = True
 
+        class Section3(Section1):
+            pass
+
         class Section2(Element):
-            section1 = Section1(XPath('section1'))
+            section1 = Section1(ID('section1'))
+            section3 = Section3(ID('section3'))
 
         class Page(object):
-            section2 = Section2(XPath('section2'))
+            section2 = Section2(ID('section2'))
 
-        section1_instance = Page.section2.section1
-        assert isinstance(section1_instance, Section1)
-        assert section1_instance.web_element is self.web_element
+        page = Page()
+        section2 = page.section2()
+        section1 = section2.section1()
+        assert isinstance(section1, Section1)
+        assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
-            call('xpath', 'section2'),
-            call('xpath', 'section1'),
+            call('id', 'section2'),
+            call('id', 'section1'),
         ])
+        section2.section3()
         self.web_element.find_element.assert_not_called()
+
+# ------------------------------------------
 
     def test_search_with_driver__as_argument_to_element(self):
         class Section1(Element):
