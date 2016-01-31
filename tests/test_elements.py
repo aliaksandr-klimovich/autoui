@@ -5,9 +5,9 @@ from mock import Mock, call
 from nose.tools import eq_
 from selenium.common.exceptions import StaleElementReferenceException
 
-from autoui.elements.abstract import Element, Elements, Fillable
-from autoui.elements.common import Input
-from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
+from autoui.elements.abstract import Element
+from autoui.elements.implemented import Input
+from autoui.exceptions import InvalidLocator, InvalidWebElementInstance
 from autoui.locators import XPath, ID
 from tests.base import BaseTestCase
 
@@ -15,28 +15,50 @@ from tests.base import BaseTestCase
 class TestElement(BaseTestCase):
     def test_declaration(self):
         class CustomElement(Element):
-            element = Element(XPath(''))
+            element = Element(ID('1'))
 
         class Section(Element):
-            element = Element(XPath(''))
-            custom_element = CustomElement(XPath(''))
+            element = Element(ID('2'))
+            custom_element = CustomElement(ID('3'))
 
         class Page(object):
-            section = Section(XPath(''))
-            element = Element(XPath(''))
-            custom_element = CustomElement(XPath(''))
+            section = Section(ID('4'))
+            element = Element(ID('5'))
+            custom_element = CustomElement(ID('6'))
 
-    def test_page_with_custom_element(self):
-        class CustomElement(Element):
-            pass
+        eq_(Page.element.locator, ID('5'))
+        eq_(Section.element.locator, ID('2'))
+        eq_(CustomElement.element.locator, ID('1'))
 
+    def test_find(self):
         class Page(object):
-            locator = CustomElement(self.xpath)
+            element = Element(self.xpath)
 
-        element_instance = Page().locator
+        page = Page()
+        element_instance = page.element.find()
         assert isinstance(element_instance, Element)
         assert element_instance.web_element is self.web_element
+        assert element_instance._instance is page
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_call(self):
+        class Page(object):
+            element = Element(self.xpath)
+
+        page = Page()
+        element_instance = page.element()
+        assert isinstance(element_instance, Element)
+        assert element_instance.web_element is self.web_element
+        assert element_instance._instance is page
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
+        self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+# ------------------------------------------
 
     def test_default_locator(self):
         class CustomSection(Element):
