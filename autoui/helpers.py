@@ -1,5 +1,4 @@
-class PropertyInstantiateException(Exception):
-    pass
+from autoui.exceptions import PropertyInstantiateException
 
 
 class PropertyMeta(type):
