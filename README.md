@@ -12,7 +12,6 @@ It is not designed for production usage. It's only my own approach to test web s
 - selenium
 - nose (for internal tests)
 - mock (for internal tests)
-- firefox (for examples)
 
 See `requirements.txt` for more details.
 

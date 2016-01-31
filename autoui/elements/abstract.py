@@ -9,90 +9,153 @@ from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, Attribu
 from autoui.locators import Locator
 
 
-class _AbstractElement(type):
-    def __new__(mcl, name, bases, nmspc):
-        if name != 'Element' \
-                and any([True if base.__name__ == 'Element' else False for base in bases]) \
-                and 'web_element' in nmspc:
-            raise AttributeNotPermitted('`web_element` attribute is reserved by framework, '
-                                        'error found in `{}` class'.format(name))
-        if name != 'Elements' \
-                and any([True if base.__name__ == 'Elements' else False for base in bases]) \
-                and 'web_elements' in nmspc:
-            raise AttributeNotPermitted('`web_elements` attribute is reserved by framework, '
-                                        'error found in `{}` class'.format(name))
-        # if name != 'Fillable' \
-        #         and any([True if base.__name__ == 'Fillable' else False for base in bases]) \
-        #         and not ('fill' in nmspc and 'get_state' in nmspc):
-        #     raise MethodNotOverridden('you must override all abstract methods in class `{}` of `Fillable`'.format(
-        #         name))
-        return type.__new__(mcl, name, bases, nmspc)
+# class _AbstractElement(type):
+#     def __new__(mcl, name, bases, nmspc):
+#         if name != 'Element' \
+#                 and any([True if base.__name__ == 'Element' else False for base in bases]) \
+#                 and 'web_element' in nmspc:
+#             raise AttributeNotPermitted('`web_element` attribute is reserved by framework, '
+#                                         'error found in `{}` class'.format(name))
+#         if name != 'Elements' \
+#                 and any([True if base.__name__ == 'Elements' else False for base in bases]) \
+#                 and 'web_elements' in nmspc:
+#             raise AttributeNotPermitted('`web_elements` attribute is reserved by framework, '
+#                                         'error found in `{}` class'.format(name))
+#         # if name != 'Fillable' \
+#         #         and any([True if base.__name__ == 'Fillable' else False for base in bases]) \
+#         #         and not ('fill' in nmspc and 'get_state' in nmspc):
+#         #     raise MethodNotOverridden('you must override all abstract methods in class `{}` of `Fillable`'.format(
+#         #         name))
+#         return type.__new__(mcl, name, bases, nmspc)
+#
+#     def _find_element(self, finder, locator):
+#         pass
+
+
+# class Element(object):
+#     __metaclass__ = _AbstractElement
+#     web_element = None
+#     locator = None
+#     search_with_driver = False
+#
+#     def __init__(self, locator=None, decorators=(), search_with_driver=None):
+#         """
+#         :param locator: obligatory instance of class ``Locator``
+#         """
+#         # check to not override default locator
+#         if locator is not None:
+#             self.locator = locator
+#         self._validate_locator()
+#
+#         for decorator in decorators[::-1]:
+#             self._find = decorator(self._find)
+#
+#         # check to not override default search type
+#         if search_with_driver is not None:
+#             self.search_with_driver = search_with_driver
+#
+#     def __get__(self, instance, owner):
+#         self._instance = instance
+#         self._owner = owner
+#
+#         finder = self._get_finder(instance, owner)
+#
+#         try:
+#             web_element = self._find(finder, self.locator)
+#         except StaleElementReferenceException:
+#             try:
+#                 if hasattr(instance, '_instance') and hasattr(instance, '_owner'):
+#                     instance.__get__(instance._instance, instance._owner)
+#                 else:
+#                     raise DebugException("Need to investigate current problem")
+#                 web_element = self._find(finder, self.locator)
+#             except:
+#                 raise
+#
+#         self.web_element = web_element
+#         return self
+#
+#     def _find(self, finder, locator):
+#         """
+#         :param finder: web element or driver instance
+#         :param locator: instance of Locator class
+#         :return: web element
+#         """
+#         return finder.find_element(*locator.get())
+#
+#     def _validate_locator(self):
+#         if not isinstance(self.locator, Locator):
+#             raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
+#                 self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
+#
+#     def _get_finder(self, instance, owner):
+#         self._validate_search_with_driver()
+#         if instance is not None and isinstance(instance, Element) and hasattr(instance, 'web_element'):
+#             if not isinstance(instance.web_element, WebElement):
+#                 warn('`web_element` instance not subclasses `WebElement` in `{}` object at runtime'.format(
+#                     instance.__class__.__name__, instance), InvalidWebElementInstance)
+#             elif not (hasattr(self, 'search_with_driver') and self.search_with_driver is True):
+#                 return instance.web_element
+#         return get_driver()
+#
+#     def _validate_search_with_driver(self):
+#         t = type(self.search_with_driver)
+#         if t is not bool:
+#             raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
 
 
 class Element(object):
-    __metaclass__ = _AbstractElement
     web_element = None
     locator = None
     search_with_driver = False
 
-    def __init__(self, locator=None, decorators=(), search_with_driver=None):
-        """
-        :param locator: obligatory instance of class ``Locator``
-        """
-        # check to not override default locator
+    def __init__(self, locator=None, search_with_driver=search_with_driver, mixins=None):
         if locator is not None:
             self.locator = locator
-        self._validate_locator()
+            self._validate_locator()
 
-        for decorator in decorators[::-1]:
-            self._find = decorator(self._find)
-
-        # check to not override default search type
         if search_with_driver is not None:
             self.search_with_driver = search_with_driver
+
+        if mixins:
+            bases = [self.__class__]
+            bases.extend(mixins)
+            bases = tuple(bases)
+            self.__class__ = type(self.__class__.__name__, bases, {})
 
     def __get__(self, instance, owner):
         self._instance = instance
         self._owner = owner
-
-        finder = self._get_finder(instance, owner)
-
-        try:
-            web_element = self._find(finder, self.locator)
-        except StaleElementReferenceException:
-            try:
-                if hasattr(instance, '_instance') and hasattr(instance, '_owner'):
-                    instance.__get__(instance._instance, instance._owner)
-                else:
-                    raise DebugException("Need to investigate current problem")
-                web_element = self._find(finder, self.locator)
-            except:
-                raise
-
-        self.web_element = web_element
         return self
 
-    def _find(self, finder, locator):
-        """
-        must return web element
-        :param finder: web element or driver
-        :param locator: instance of class Locator
-        """
-        return finder.find_element(*locator.get())
+    def find(self):
+        finder = self._get_finder()
+        try:
+            self.web_element = finder.find_element(*self.locator.get())
+        except StaleElementReferenceException:
+            try:
+                if hasattr(self._instance, '_instance') and hasattr(self._instance, '_owner'):
+                    self._instance.find()
+                else:
+                    raise DebugException('Need to investigate current problem')
+                self.web_element = finder.find_element(*self.locator.get())
+            except:
+                raise
+        return self
 
     def _validate_locator(self):
         if not isinstance(self.locator, Locator):
             raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
                 self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
 
-    def _get_finder(self, instance, owner):
-        self._validate_search_with_driver()
-        if instance is not None and isinstance(instance, Element) and hasattr(instance, 'web_element'):
-            if not isinstance(instance.web_element, WebElement):
+    def _get_finder(self):
+        if self._instance is not None and isinstance(self._instance, Element) and \
+                hasattr(self._instance, 'web_element'):
+            if not isinstance(self._instance.web_element, WebElement):
                 warn('`web_element` instance not subclasses `WebElement` in `{}` object at runtime'.format(
-                    instance.__class__.__name__, instance), InvalidWebElementInstance)
+                    self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
             elif not (hasattr(self, 'search_with_driver') and self.search_with_driver is True):
-                return instance.web_element
+                return self._instance.web_element
         return get_driver()
 
     def _validate_search_with_driver(self):
@@ -101,24 +164,25 @@ class Element(object):
             raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
 
 
-class Elements(Element):
-    web_elements = None
-
-    def __get__(self, instance, owner):
-        finder = self._get_finder(instance, owner)
-        web_elements = finder.find_elements(*self.locator.get())
-        self.web_elements = web_elements
-        return self
+# class Elements(Element):
+#     web_elements = None
+#
+#     def __get__(self, instance, owner):
+#         finder = self._get_finder(instance, owner)
+#         web_elements = finder.find_elements(*self.locator.get())
+#         self.web_elements = web_elements
+#         return self
 
 
 class Fillable(object):
     """
+    Mixin class ``Fillable``.
     Subclass it to make element fillable.
     Do not forget override ``fill`` and ``get_state`` methods.
     This methods should be compatible,
     i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
     """
-    stop_propagation = False
+    __stop_propagation = False
 
     def _get_names(self):
         """
@@ -144,7 +208,7 @@ class Fillable(object):
         _names = self._get_names()
         for _k, _v in data.items():
             if _v is not None and _k in _names:
-                if self.stop_propagation:
+                if self.__stop_propagation:
                     getattr(self, _k).fill(_v, stop=True)
                 else:
                     getattr(self, _k).fill(_v)
@@ -159,7 +223,7 @@ class Fillable(object):
         _names = self._get_names()
         state = {}
         for name in _names:
-            if self.stop_propagation:
+            if self.__stop_propagation:
                 # do not add anything on enter in stopped element
                 s = getattr(self, name).get_state(stop=True)
                 if s is not None:

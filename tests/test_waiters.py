@@ -1,15 +1,41 @@
-from unittest import TestCase
+from unittest.case import TestCase
 
-from mock import Mock, call
-from nose.tools import eq_
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
-from autoui.waiters import *
+from autoui.base import BasePage
 from autoui.driver import get_driver
-from autoui.elements.abstract import Element
-from autoui.elements.common import Input
-from autoui.locators import XPath
-from tests.base import BaseTestCase
+from autoui.elements.common import Button
+from autoui.locators import ID
+from autoui.waiters import wait_until_element_is_visible, wait_until_element_is_invisible, \
+    wait_until_element_is_visible_v2
+from tests.base import BaseTestCaseWithServer, BaseTestCase
+
+
+class TestWaiters(BaseTestCaseWithServer):
+
+    def tearDown(self):
+        get_driver().quit()
+
+    def test_01(self):
+        class TestPage(BasePage):
+            url = 'localhost:8000/page.html'
+            button01 = Button(ID('b-01'))
+            button02 = Button(ID('b-02'), (wait_until_element_is_invisible('after', timeout=1),
+                                           wait_until_element_is_visible('after', timeout=2.5)))
+
+        test_page = TestPage()
+        test_page.get()
+        test_page.button01.click()
+
+
+class Temp(BaseTestCase):
+    def test_01(self):
+        class TestPage(object):
+            button = Button(ID('b'))
+
+            def wait_until_button_is_visible(self):
+                return wait_until_element_is_visible_v2(self, self.__class__.__dict__['button'])
+
+        test_page = TestPage()
+        test_page.wait_until_button_is_visible()
 
 """
 class TestUntil(BaseTestCase):
@@ -86,23 +112,7 @@ class TestUntil(BaseTestCase):
         p = Page()
         e = p.element
         assert e.web_element is None
-"""
 
-
-# class TestCustomWaiters(TestCase):
-#     def test_010(self):
-#
-#         class Page(object):
-#             element = Element(XPath('element'), (until_visibility_of_element_located('replace', 2), ))
-#
-#         page = Page()
-#         page.element
-
-
-
-
-
-"""
 class TestFillableDecorator(BaseTestCase):
     # same as in `Element` test
     # but with decorator `fillable`

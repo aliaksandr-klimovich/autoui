@@ -24,6 +24,6 @@ class InvalidWebElementInstance(AutoUIWarning):
 
 class DebugException(AutoUIException):
     """
-    for debug
+    for debug purposes
     """
     pass

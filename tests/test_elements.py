@@ -8,7 +8,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from autoui.elements.abstract import Element, Elements, Fillable
 from autoui.elements.common import Input
 from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
-from autoui.locators import XPath
+from autoui.locators import XPath, ID
 from tests.base import BaseTestCase
 
 
@@ -395,3 +395,19 @@ class TestCustomElements(BaseTestCase):
 
 class TestAbstract(TestCase):
     pass
+
+
+class TestElementV3(BaseTestCase):
+    def test_find(self):
+        class Mixin1(object):
+            def some_method(self):
+                print 'hello from Mixin1'
+
+        class Mixin2(object):
+            pass
+
+        class Page(object):
+            element = Element(ID('1'), mixins=(Mixin1, Mixin2))
+        element_instance = Page().element.find()
+        assert element_instance.web_element is self.web_element
+        element_instance.some_method()

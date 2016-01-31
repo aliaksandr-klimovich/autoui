@@ -3,6 +3,8 @@ from functools import wraps
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+from autoui.elements.abstract import Element
+
 DEFAULT_TIMEOUT = 30
 POLL_FREQUENCY = 0.5
 
@@ -53,6 +55,16 @@ class wait_until_element_is_visible(AbstractWaiter):
         return wrapper
 
 
+class wait_until_element_is_visible_v2(object):
+    def __init__(self, instance, element):
+        assert isinstance(element, Element)
+        self.element = element
+        self.instance = instance
+
+    def __call__(self, *args, **kwargs):
+        finder = self.element._get_finder(self.instance, self.instance.__class__)
+
+
 class wait_until_element_is_invisible(AbstractWaiter):
     def __init__(self, action, timeout=DEFAULT_TIMEOUT, poll_frequency=POLL_FREQUENCY):
         super(wait_until_element_is_invisible, self).__init__(timeout, poll_frequency)
@@ -71,6 +83,7 @@ class wait_until_element_is_invisible(AbstractWaiter):
                     ))
             if self.action == 'replace':
                 return result
+                # TODO: must return web element!
             if self.action == 'after':
                 return _find(finder, locator)
         return wrapper
