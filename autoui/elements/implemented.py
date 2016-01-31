@@ -1,4 +1,4 @@
-from autoui.elements.abstract import Element, Elements, Fillable
+from autoui.elements.abstract import Element
 
 
 class Text(Element):
