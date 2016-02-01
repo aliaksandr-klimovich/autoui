@@ -7,7 +7,7 @@ class Fillable(object):
     Those methods should be compatible,
     i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
     """
-    __stop_propagation = False
+    stop_propagation = False
 
     def _get_names(self):
         """
@@ -33,10 +33,10 @@ class Fillable(object):
         _names = self._get_names()
         for _k, _v in data.items():
             if _v is not None and _k in _names:
-                if self.__stop_propagation:
-                    getattr(self, _k).fill(_v, stop=True)
+                if self.stop_propagation:
+                    getattr(self, _k).find().fill(_v, stop=True)
                 else:
-                    getattr(self, _k).fill(_v)
+                    getattr(self, _k).find().fill(_v)
 
     def get_state(self, stop=False):
         """
@@ -48,10 +48,10 @@ class Fillable(object):
         _names = self._get_names()
         state = {}
         for name in _names:
-            if self.__stop_propagation:
-                s = getattr(self, name).get_state(stop=True)
+            if self.stop_propagation:
+                s = getattr(self, name).find().get_state(stop=True)
                 if s is not None:
                     state[name] = s
             else:
-                state[name] = getattr(self, name).get_state()
+                state[name] = getattr(self, name).find().get_state()
         return state

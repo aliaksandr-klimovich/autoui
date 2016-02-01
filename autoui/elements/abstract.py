@@ -63,12 +63,18 @@ class Element(object):
 
     def _get_finder(self):
         if isinstance(self._instance, Element) and self.search_with_driver is False:
+            self._validate_web_element_of_instance()
             return self._instance.web_element
         return get_driver()
 
     def _validate_web_element(self):
-        if not isinstance(self.web_element, WebElement):
-            warn('`web_element` instance not subclasses `WebElement` in `{}` object at runtime'.format(
+        assert isinstance(self.web_element, WebElement), \
+            '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
+                self.__class__.__name__)
+
+    def _validate_web_element_of_instance(self):
+        if not isinstance(self._instance.web_element, WebElement):
+            warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
                 self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
 
     def _validate_locator(self):
