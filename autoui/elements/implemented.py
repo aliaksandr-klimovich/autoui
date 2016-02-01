@@ -44,8 +44,9 @@ class Input(Element, Fillable):
         self.web_element.send_keys(data)
 
     def type(self, text):
-        self.web_element.clear()
-        self.web_element.send_keys(text)
+        if text is not None:
+            self.web_element.clear()
+            self.web_element.send_keys(text)
 
 
 class Image(Element):
