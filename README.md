@@ -12,8 +12,9 @@ It is not designed for production usage. It's only my own approach to test web s
 - selenium
 - nose (for internal tests)
 - mock (for internal tests)
+- cherrypy (for internal tests)
 
-See `requirements.txt` for more details.
+See `requirements.txt`.
 
 ## Usage
 ### Basic test

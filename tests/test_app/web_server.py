@@ -1,4 +1,13 @@
-<!doctype html>
+import cherrypy
+
+
+base_url = 'http://127.0.0.1:8080'
+
+
+class Root(object):
+    @cherrypy.expose
+    def page1(self):
+        return """<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,4 +34,18 @@ document.getElementById("b-01").onclick = function(e) {
 </script>
 
 </body>
-</html>
+</html>"""
+
+
+def start_test_web_app():
+    cherrypy.config.update({
+        'server.socket_port': 8080,
+        'log.screen': False,
+    })
+    cherrypy.tree.mount(Root(), '/', {'/': {'tools.gzip.on': True}})
+    cherrypy.engine.start()
+
+
+def stop_test_web_app():
+    cherrypy.engine.stop()
+    cherrypy.engine.exit()

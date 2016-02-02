@@ -1,12 +1,11 @@
 from unittest import TestCase
 
 from mock import Mock
-from os import chdir
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
 from autoui.locators import XPath
-from tests.test_app.run_script import TestServer
+from tests.test_app.web_server import start_test_web_app, stop_test_web_app
 
 
 class BaseTestCase(TestCase):
@@ -38,11 +37,8 @@ class BaseTestCase(TestCase):
 class BaseTestCaseWithServer(TestCase):
     @classmethod
     def setUpClass(cls):
-        chdir('test_app')
-        cls.test_server = TestServer()
-        cls.test_server.start()
+        start_test_web_app()
 
     @classmethod
     def tearDownClass(cls):
-        cls.test_server.stop()
-        chdir('..')
+        stop_test_web_app()
