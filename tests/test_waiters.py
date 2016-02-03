@@ -12,20 +12,26 @@ from tests.test_app.web_server import base_url
 class TestWaiters(BaseTestCaseWithServer):
     url = base_url + '/page1'
 
-    def setUp(self):
-        get_driver._driver = None
+    @classmethod
+    def setUpClass(cls):
+        super(TestWaiters, cls).setUpClass()
+        get_driver().get(cls.url)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
+        super(TestWaiters, cls).tearDownClass()
         get_driver().quit()
 
+    def setUp(self):
+        get_driver().refresh()
+
     def test_wait_until_visible_and_invisible(self):
-        class Page(BasePage):
+        class Page(object):
             url = self.url
             button1 = Button(ID('b-01'))
             button2 = Button(ID('b-02'))
 
         page = Page()
-        page.get()
 
         button1 = page.button1
         button1.find().click()
