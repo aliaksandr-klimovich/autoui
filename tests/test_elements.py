@@ -5,8 +5,8 @@ from nose.tools import eq_
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 
-from autoui.elements.abstract import Element
-from autoui.elements.implemented import Input
+from autoui.elements.abstract import Element, Elements
+from autoui.elements.implemented import Input, Button
 from autoui.elements.mixins import Fillable
 from autoui.exceptions import InvalidLocator, InvalidWebElementInstance
 from autoui.locators import XPath, ID
@@ -356,28 +356,29 @@ class TestElement(BaseTestCase):
         Page().section.find().test_element()
 
 
-# class TestElements(BaseTestCase):
-#     def test_declaration(self):
-#         class Sections(Elements):
-#             pass
-#
-#         sections = Sections(XPath(''))
-#
-#     def test_page_with_custom_elements(self):
-#         l = XPath('.')
-#
-#         class Sections(Elements):
-#             pass
-#
-#         class Page(object):
-#             sections = Sections(l)
-#
-#         page = Page()
-#         s = page.sections
-#         eq_(s.web_elements, [self.web_element, ])
-#         self.driver.find_elements.assert_called_once_with(l.by, l.value)
-#
-#     def test_not_permitted_attribute(self):
+class TestElements(BaseTestCase):
+    def test_declaration(self):
+        class Sections(Elements):
+            locator = ID('1')
+
+        class Page(object):
+            sections = Sections()
+
+    def test_page_with_custom_elements(self):
+        class Buttons(Elements):
+            locator = ID('1')
+            base_class = Button
+
+        class Page(object):
+            buttons = Buttons()
+
+        page = Page()
+        s = page.buttons.find()
+        eq_(s, [self.web_element, ])
+        assert isinstance(s[0], Button)
+        self.driver.find_elements.assert_called_once_with(*ID('1').get())
+
+#    def test_not_permitted_attribute(self):
 #         with self.assertRaises(AttributeNotPermitted):
 #             class Section(Elements):
 #                 web_elements = None
@@ -405,16 +406,7 @@ class TestElement(BaseTestCase):
 #             s = page.outer_structure.inner_structure
 #
 #         assert issubclass(w[-1].category, InvalidWebElementInstance)
-#
-#
-# class TestCustomElements(BaseTestCase):
-#     pass
-#
-#
-# class TestAbstract(TestCase):
-#     pass
-#
-#
+
 
 class TestMixins(BaseTestCase):
     def test_find(self):
@@ -429,4 +421,23 @@ class TestMixins(BaseTestCase):
             element = Element(ID('1'), mixins=(Mixin1, Mixin2))
         element_instance = Page().element.find()
         assert element_instance.web_element is self.web_element
+        # element_instance.some_method()
+        # TODO: assert that mixins are used
+
+    def test_find_as_property(self):
+        class Mixin1(object):
+            def some_method(self):
+                pass
+
+        class Mixin2(object):
+            pass
+
+        class Section(Element):
+            mixins = (Mixin1, Mixin2)
+
+        class Page(object):
+            section = Section(ID('1'))
+        element_instance = Page().section.find()
+        assert element_instance.web_element is self.web_element
         element_instance.some_method()
+        # TODO: assert that mixins are used
