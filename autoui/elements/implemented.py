@@ -1,4 +1,4 @@
-from autoui.elements.abstract import Element
+from autoui.elements.abstract import Element, Elements
 from autoui.elements.mixins import Fillable
 
 
@@ -27,10 +27,12 @@ class Link(Element):
         return self.web_element.get_attribute('href')
 
 
-# class Links(Elements):
-#     @property
-#     def hrefs(self):
-#         return [element.get_attribute('href') for element in self.web_elements]
+class Links(Elements):
+    base_class = Link
+
+    @property
+    def hrefs(self):
+        return [element.web_element.get_attribute('href') for element in self.elements]
 
 
 class Input(Element, Fillable):

@@ -374,8 +374,9 @@ class TestElements(BaseTestCase):
 
         page = Page()
         s = page.buttons.find()
-        eq_(s, [self.web_element, ])
-        assert isinstance(s[0], Button)
+        eq_(s.elements, [self.web_element, ])
+        assert isinstance(s.elements[0], Button)
+        assert isinstance(s, Buttons)
         self.driver.find_elements.assert_called_once_with(*ID('1').get())
 
 #    def test_not_permitted_attribute(self):

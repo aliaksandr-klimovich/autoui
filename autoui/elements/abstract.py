@@ -1,3 +1,4 @@
+from copy import copy
 from inspect import isclass
 from warnings import warn
 
@@ -112,10 +113,9 @@ class Elements(Element):
     base_class = None
     base_class_mixins = None
 
-    def __init__(self, base_class=None, locator=None, search_with_driver=None, mixins=None, base_class_mixins=None):
+    def __init__(self, locator=None, base_class=None, search_with_driver=None, mixins=None, base_class_mixins=None):
         super(Elements, self).__init__(locator, search_with_driver, mixins)
         self.elements = []
-        self.web_elements = []
         if base_class:
             self.base_cls = base_class
         if base_class_mixins:
@@ -124,7 +124,7 @@ class Elements(Element):
     def find(self):
         finder = self._get_finder()
         try:
-            self.web_elements = finder.find_elements(*self.locator.get())
+            web_elements = finder.find_elements(*self.locator.get())
         except StaleElementReferenceException:
             try:
                 if hasattr(self._instance, '_instance') and hasattr(self._instance, '_owner'):
@@ -132,13 +132,13 @@ class Elements(Element):
                 else:
                     raise DebugException('Need to investigate current problem')
                 # find elements once again after parent is found
-                self.web_elements = finder.find_elements(*self.locator.get())
+                web_elements = finder.find_elements(*self.locator.get())
             except:
                 raise
         # wrap web_elements
-        for web_element in self.web_elements:
+        for web_element in web_elements:
             element = web_element
-            element.web_element = element
+            element.web_element = copy(web_element)
             if self.base_class_mixins:
                 element.__class__ = type(self.base_class.__name__, (self.base_class,) + self.base_class_mixins, {})
             else:
@@ -149,7 +149,7 @@ class Elements(Element):
             element.find = None
             self.elements.append(element)
 
-        return self.elements
+        return self
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         pass
