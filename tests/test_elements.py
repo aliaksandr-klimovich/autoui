@@ -379,66 +379,50 @@ class TestElements(BaseTestCase):
         assert isinstance(s, Buttons)
         self.driver.find_elements.assert_called_once_with(*ID('1').get())
 
-#    def test_not_permitted_attribute(self):
-#         with self.assertRaises(AttributeNotPermitted):
-#             class Section(Elements):
-#                 web_elements = None
-#
-#     def test_not_permitted_attribute_from_element_not_affected(self):
-#         class Section(Elements):
-#             web_element = None
-#
-#     def test_finding_elements_with_elements(self):
-#         class InnerStructure(Elements):
-#             pass
-#
-#         class OuterStructure(Elements):
-#             inner_structure = InnerStructure(XPath(''))
-#
-#         class Page(object):
-#             outer_structure = OuterStructure(XPath(''))
-#
-#         # override _get_finder method ?
-#         # won't fix, it is normal thing that i can find elements only with single element
-#         # and if i want to find elements with elements i should implement
-#         # this feature by myself in custom elements
-#         page = Page()
-#         with catch_warnings(record=True) as w:
-#             s = page.outer_structure.inner_structure
-#
-#         assert issubclass(w[-1].category, InvalidWebElementInstance)
-
 
 class TestMixins(BaseTestCase):
-    def test_find(self):
+    def setUp(self):
+        super(TestMixins, self).setUp()
+
         class Mixin1(object):
-            def some_method(self):
-                pass
+            test_mixin_1 = None
 
         class Mixin2(object):
-            pass
+            test_mixin_2 = None
 
+        self.Mixin1 = Mixin1
+        self.Mixin2 = Mixin2
+
+    def test_mixins_are_arguments(self):
         class Page(object):
-            element = Element(ID('1'), mixins=(Mixin1, Mixin2))
+            element = Element(ID('1'), mixins=(self.Mixin1, self.Mixin2))
+
         element_instance = Page().element.find()
         assert element_instance.web_element is self.web_element
-        # element_instance.some_method()
-        # TODO: assert that mixins are used
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')
 
-    def test_find_as_property(self):
-        class Mixin1(object):
-            def some_method(self):
-                pass
-
-        class Mixin2(object):
-            pass
-
+    def test_mixins_are_properties(self):
         class Section(Element):
-            mixins = (Mixin1, Mixin2)
+            mixins = (self.Mixin1, self.Mixin2)
 
         class Page(object):
             section = Section(ID('1'))
+
         element_instance = Page().section.find()
         assert element_instance.web_element is self.web_element
-        element_instance.some_method()
-        # TODO: assert that mixins are used
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')
+
+    def test_mixins_are_class_bases(self):
+        # python way =)
+        class Section(self.Mixin1, self.Mixin2, Element):
+            pass
+
+        class Page(object):
+            section = Section(ID('1'))
+
+        element_instance = Page().section.find()
+        assert element_instance.web_element is self.web_element
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')

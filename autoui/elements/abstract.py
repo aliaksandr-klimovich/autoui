@@ -13,12 +13,21 @@ from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, DebugEx
 from autoui.locators import Locator
 
 
-class Element(object):
+class _CommonElement(object):
+    """
+    Class contains common part of two classes: Element and Elements.
+    Do not use this class out of this module.
+    """
     locator = None
     search_with_driver = False
     mixins = None
 
     def __init__(self, locator=None, search_with_driver=None, mixins=None):
+        """
+        :param locator: instance of Locator
+        :param search_with_driver: bool type parameter representing how web element will be found
+        :param mixins: tuple containing classes
+        """
         self.web_element = None
         self._instance = None
         self._owner = None
@@ -42,8 +51,38 @@ class Element(object):
         return self
 
     def __call__(self):
+        # this feature causes absence of supported code inspection after dot
         return self.find()
 
+    def _get_finder(self):
+        # every element can be found 2 ways: using driver and using founded element
+        if isinstance(self._instance, Element) and self.search_with_driver is False:
+            self._validate_web_element_of_instance()
+            return self._instance.web_element
+        return get_driver()
+
+    def _validate_locator(self):
+        if not isinstance(self.locator, Locator):
+            raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
+                self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
+
+    def _validate_search_with_driver(self):
+        t = type(self.search_with_driver)
+        if t is not bool:
+            raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
+
+    def _validate_web_element(self):
+        assert isinstance(self.web_element, WebElement), \
+            '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
+                self.__class__.__name__)
+
+    def _validate_web_element_of_instance(self):
+        if not isinstance(self._instance.web_element, WebElement):
+            warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
+                self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
+
+
+class Element(_CommonElement):
     def find(self):
         finder = self._get_finder()
         try:
@@ -61,32 +100,6 @@ class Element(object):
                 raise
         self._validate_web_element()
         return self
-
-    def _get_finder(self):
-        if isinstance(self._instance, Element) and self.search_with_driver is False:
-            self._validate_web_element_of_instance()
-            return self._instance.web_element
-        return get_driver()
-
-    def _validate_web_element(self):
-        assert isinstance(self.web_element, WebElement), \
-            '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
-                self.__class__.__name__)
-
-    def _validate_web_element_of_instance(self):
-        if not isinstance(self._instance.web_element, WebElement):
-            warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
-                self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
-
-    def _validate_locator(self):
-        if not isinstance(self.locator, Locator):
-            raise InvalidLocator('`locator` must be instance of class `Locator`, got `{}`'.format(
-                self.locator.__name__ if isclass(self.locator) else self.locator.__class__.__name__))
-
-    def _validate_search_with_driver(self):
-        t = type(self.search_with_driver)
-        if t is not bool:
-            raise TypeError('`search_with_driver` must be of `bool` type, got `{}`'.format(t.__name__))
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()
@@ -109,7 +122,7 @@ class Element(object):
                   ))
 
 
-class Elements(Element):
+class Elements(_CommonElement):
     base_class = None
     base_class_mixins = None
 
@@ -145,14 +158,15 @@ class Elements(Element):
                 element.__class__ = self.base_class
             element._instance = self
             element._owner = self.__class__
-            element.locator = None
-            element.find = None
+            # i expect that locator can be assigned at runtime
+            # element.locator = None
+            # element.find = None
             self.elements.append(element)
 
         return self
 
-    def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
+    def wait_until_all_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         pass
 
-    def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
+    def wait_until_all_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         pass

@@ -17,8 +17,8 @@ class Button(Element):
         return self.web_element.text
 
 
-# class Buttons(Elements):
-#     pass
+class Buttons(Elements):
+    base_class = Button
 
 
 class Link(Element):
