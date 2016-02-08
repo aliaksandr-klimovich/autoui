@@ -149,7 +149,7 @@ After that, if section contains other elements, i.e. sections,
 than the algorithm will not look inside them.
 
 ### Feature 5: Can pass custom waiter to the element
-in progress...
+Use mixins for `Element` and `Elements` classes.
 
 ### Feature 6: Finding parent stale element is the default behaviour
 
