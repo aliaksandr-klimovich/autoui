@@ -1,7 +1,7 @@
 # autoui
 Web site automation testing framework.
 
-Status: :umbrella:
+Status: ![travis ci build status](https://travis-ci.org/alex-klimovich/autoui.svg?branch=master)
 
 The goal is to show how to implement custom page object pattern in python. 
 This project was inspired by `webium` project and structural patterns in java.
@@ -149,7 +149,7 @@ After that, if section contains other elements, i.e. sections,
 than the algorithm will not look inside them.
 
 ### Feature 5: Can pass custom waiter to the element
-in progress...
+Use mixins for `Element` and `Elements` classes.
 
 ### Feature 6: Finding parent stale element is the default behaviour
 
