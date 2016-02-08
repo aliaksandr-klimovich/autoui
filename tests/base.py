@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.driver import get_driver
 from autoui.locators import XPath
+from tests.test_app.web_server import start_test_web_app, stop_test_web_app
 
 
 class BaseTestCase(TestCase):
@@ -31,3 +32,13 @@ class BaseTestCase(TestCase):
 
     def tearDown(self):
         get_driver._driver = None
+
+
+class BaseTestCaseWithServer(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        start_test_web_app()
+
+    @classmethod
+    def tearDownClass(cls):
+        stop_test_web_app()

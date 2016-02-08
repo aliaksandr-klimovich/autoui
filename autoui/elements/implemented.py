@@ -1,4 +1,5 @@
-from autoui.elements.abstract import Element, Elements, Fillable
+from autoui.elements.abstract import Element, Elements
+from autoui.elements.mixins import Fillable
 
 
 class Text(Element):
@@ -17,7 +18,7 @@ class Button(Element):
 
 
 class Buttons(Elements):
-    pass
+    base_class = Button
 
 
 class Link(Element):
@@ -27,9 +28,11 @@ class Link(Element):
 
 
 class Links(Elements):
+    base_class = Link
+
     @property
     def hrefs(self):
-        return [element.get_attribute('href') for element in self.web_elements]
+        return [element.web_element.get_attribute('href') for element in self.elements]
 
 
 class Input(Element, Fillable):
@@ -43,8 +46,9 @@ class Input(Element, Fillable):
         self.web_element.send_keys(data)
 
     def type(self, text):
-        self.web_element.clear()
-        self.web_element.send_keys(text)
+        if text is not None:
+            self.web_element.clear()
+            self.web_element.send_keys(text)
 
 
 class Image(Element):

@@ -1,5 +1,5 @@
-from autoui.base import BasePage
-from autoui.elements.common import Button, Input
+from autoui.base_page import BasePage
+from autoui.elements.implemented import Button, Input
 from autoui.locators import XPath, ID
 
 
@@ -9,8 +9,8 @@ class YaPage(BasePage):
     find = Button(XPath('//button[@type="submit"]'))
 
     def find_text(self, text):
-        self.input.type(text)
-        self.find.click()
+        self.input().type(text)
+        self.find().click()
 
 
 if __name__ == '__main__':

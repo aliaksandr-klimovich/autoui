@@ -22,14 +22,34 @@ class Locator(object):
         return self.by, self.value
 
 
+class XPath(Locator):
+    def __init__(self, value):
+        super(XPath, self).__init__(By.XPATH, value)
+
+
+class CSS(Locator):
+    def __init__(self, value):
+        super(CSS, self).__init__(By.CSS_SELECTOR, value)
+
+
 class ID(Locator):
     def __init__(self, value):
         super(ID, self).__init__(By.ID, value)
 
 
-class XPath(Locator):
+class ClassName(Locator):
     def __init__(self, value):
-        super(XPath, self).__init__(By.XPATH, value)
+        super(ClassName, self).__init__(By.CLASS_NAME, value)
+
+
+class TagName(Locator):
+    def __init__(self, value):
+        super(TagName, self).__init__(By.TAG_NAME, value)
+
+
+class Name(Locator):
+    def __init__(self, value):
+        super(Name, self).__init__(By.NAME, value)
 
 
 class LinkText(Locator):
@@ -40,23 +60,3 @@ class LinkText(Locator):
 class PartialLinkText(Locator):
     def __init__(self, value):
         super(PartialLinkText, self).__init__(By.PARTIAL_LINK_TEXT, value)
-
-
-class Name(Locator):
-    def __init__(self, value):
-        super(Name, self).__init__(By.NAME, value)
-
-
-class TagName(Locator):
-    def __init__(self, value):
-        super(TagName, self).__init__(By.TAG_NAME, value)
-
-
-class ClassName(Locator):
-    def __init__(self, value):
-        super(ClassName, self).__init__(By.CLASS_NAME, value)
-
-
-class CSS(Locator):
-    def __init__(self, value):
-        super(CSS, self).__init__(By.CSS_SELECTOR, value)

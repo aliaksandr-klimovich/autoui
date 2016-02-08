@@ -12,15 +12,16 @@ It is not designed for production usage. It's only my own approach to test web s
 - selenium
 - nose (for internal tests)
 - mock (for internal tests)
-- firefox (for examples)
+- cherrypy (for internal tests)
+- chromedriver executable (for internal tests)
 
-See `requirements.txt` for more details.
+See `requirements.txt`.
 
 ## Usage
 ### Basic test
 ```python
-from autoui.base import BasePage
-from autoui.elements.common import Button, Input
+from autoui.base_page import BasePage
+from autoui.elements.implemented import Button, Input
 from autoui.locators import XPath, ID
 
 
@@ -30,8 +31,8 @@ class YaPage(BasePage):
     find = Button(XPath('//button[@type="submit"]'))
 
     def find_text(self, text):
-        self.input.type(text)
-        self.find.click()
+        self.input().type(text)
+        self.find().click()
 
 
 if __name__ == '__main__':
@@ -40,17 +41,17 @@ if __name__ == '__main__':
     ya_page.find_text('autoui')
 ```
 
-### Feature 1: Full support code inspections from IDE
-From example above, if you write `ya_page`, put a dot, have a code inpection, 
-write `find` and put a dot - you have code inpection again. Now you can select 
-`click` function. Each element provides its own methods so you always know 
+### Feature 1: Support code inspections from IDE
+From example above, if you write `ya_page`, put a dot, have a code inspection, 
+write `find()` and put a dot - you have code inspection again. Now you can select 
+`click()` function. Each element provides its own methods so you always know 
 that, for example, for button you can't send keys. If you need this functionality, 
 you can inherit from `Element` class and implement your own methods. Remember, 
 that elements have special attribute `web_element` which is used to interact with 
 webdriver.
 
 ### Feature 2: Default locator
-You can use default locator to locate elements. Write it as a propherty of class that inherit `Element`.
+You can use default locator to locate elements. Write it as a property of class that inherit `Element`.
 ```python
 class CustomElement(Element):
     locator = XPath('.//a')
@@ -72,7 +73,7 @@ class Section(Element):
 class Page:
     section = Section()
 ```
-`Page().section.element` will look for section with driver and element with section.
+`Page().section().element` will look for section with driver and element with section.
 If you want to find element with driver instead of section - use
 `search_with_driver = True` attribute for current section. You can use this trick:
 ```python
@@ -118,7 +119,7 @@ class Page:
     section1 = Section1()
 ```
 
-Now you can access section2 with `Page.section1.section2`.
+Now you can access section2 with `Page().section1().section2()`.
 Let's create a dict to pass to `fill` method of `Section1`:
 
 ```python
@@ -132,15 +133,15 @@ dict_to_fill = {
 ```
 
 Here keys are element names and values are other element names or values to fill.
-For example, you can access `s1_el1` with `Page.section1.s1_el1`
-and `s2_el2` with `Page.section1.section2.s2_el2`.
-Now if you write `Page.section1.fill(dict_to_fill)` than
+For example, you can access `s1_el1` with `Page().section1().s1_el1`
+and `s2_el2` with `Page().section1().section2().s2_el2`.
+Now if you write `Page().section1.fill(dict_to_fill)` than
 element `s1_el1` will be filled with `s1_el1_value`,
 element `s2_el1` will be filled with `s2_el1_value` and
 element `s2_el2` will be filled with `s2_el2_value`.
 
 After all this manipulations you can get your dict by writing
-`dict_with_state = Page.section1.get_state()` and continue working with it.
+`dict_with_state = Page().section1.get_state()` and continue working with it.
 
 You can tell to your element that fill propagation will be stopped
 by filling the attribute: `stop_propagation = True` in custom element class.
@@ -152,15 +153,15 @@ in progress...
 
 ### Feature 6: Finding parent stale element is the default behaviour
 
-Realized in `__get__` method of `Element` class.
+Realized in `find` method of `Element` class.
 
 Let's imagine that we have next situation.
 I have `Page` class, it contains `Section` class
 and the `Section` class contains `Element` inside.
 I do some work inside `Element` class having `web_element` reference.
-But in the middle of my work with element `Section` updates.
-Than I'll' have `StaleElementReferenceException` from `finder`.
-But what exactly I want to have? That the element can be found one again!
-If `Section` is updated than `__get__` method tries to obtain parent object
+But in the middle of my work the element `Section` updates.
+Than I'll have `StaleElementReferenceException` from `finder`.
+But what exactly I want to have? That the element can be found once again!
+If `Section` is updated than `find` method tries to obtain parent object
 to find it. After all `Section` will be found and I'll have chance to continue
 working with `Element`.

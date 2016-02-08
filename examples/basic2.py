@@ -1,5 +1,5 @@
-from autoui.base import BasePage
-from autoui.elements.common import Links
+from autoui.base_page import BasePage
+from autoui.elements.implemented import Links
 from autoui.locators import XPath
 
 
@@ -8,7 +8,7 @@ class MinskTheBy(BasePage):
     links = Links(XPath('//a'))
 
     def get_all_links(self):
-        return self.links.hrefs
+        return self.links.find().hrefs
 
 
 if __name__ == '__main__':

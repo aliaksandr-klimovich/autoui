@@ -1,41 +1,71 @@
-from unittest import TestCase
 from warnings import catch_warnings
 
 from mock import Mock, call
 from nose.tools import eq_
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.remote.webelement import WebElement
 
-from autoui.elements.abstract import Element, Elements, Fillable
-from autoui.elements.common import Input
-from autoui.exceptions import InvalidLocator, AttributeNotPermitted, InvalidWebElementInstance
-from autoui.locators import XPath
+from autoui.elements.abstract import Element, Elements
+from autoui.elements.implemented import Input, Button
+from autoui.elements.mixins import Fillable
+from autoui.exceptions import InvalidLocator, InvalidWebElementInstance
+from autoui.locators import XPath, ID
 from tests.base import BaseTestCase
 
 
 class TestElement(BaseTestCase):
     def test_declaration(self):
         class CustomElement(Element):
-            element = Element(XPath(''))
+            element = Element(ID('1'))
 
         class Section(Element):
-            element = Element(XPath(''))
-            custom_element = CustomElement(XPath(''))
+            element = Element(ID('2'))
+            custom_element = CustomElement(ID('3'))
 
         class Page(object):
-            section = Section(XPath(''))
-            element = Element(XPath(''))
-            custom_element = CustomElement(XPath(''))
+            section = Section(ID('4'))
+            element = Element(ID('5'))
+            custom_element = CustomElement(ID('6'))
 
-    def test_page_with_custom_element(self):
-        class CustomElement(Element):
-            pass
-
+    def test_find(self):
         class Page(object):
-            locator = CustomElement(self.xpath)
+            element = Element(self.xpath)
 
-        element_instance = Page().locator
+        page = Page()
+        element_instance = page.element.find()
         assert isinstance(element_instance, Element)
         assert element_instance.web_element is self.web_element
+        assert element_instance._instance is page
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
+        self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_find__no_instance(self):
+        class Page(object):
+            element = Element(self.xpath)
+
+        element_instance = Page.element.find()
+        assert isinstance(element_instance, Element)
+        assert element_instance.web_element is self.web_element
+        assert element_instance._instance is None
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
+        self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+
+    def test_call(self):
+        class Page(object):
+            element = Element(self.xpath)
+
+        page = Page()
+        element_instance = page.element()
+        assert isinstance(element_instance, Element)
+        assert element_instance.web_element is self.web_element
+        assert element_instance._instance is page
+        assert element_instance._owner is Page
+        assert element_instance.locator is self.xpath
+        assert element_instance.search_with_driver is False
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
     def test_default_locator(self):
@@ -45,9 +75,7 @@ class TestElement(BaseTestCase):
         class Page(object):
             custom_section = CustomSection()
 
-        custom_section = Page.custom_section
-        assert isinstance(custom_section, CustomSection)
-        assert custom_section.web_element is self.web_element
+        Page().custom_section.find()
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
 
     def test_incorrect_locator_type__pass_instance(self):
@@ -84,19 +112,26 @@ class TestElement(BaseTestCase):
         class Section1(Element):
             search_with_driver = True
 
+        class Section3(Section1):
+            pass
+
         class Section2(Element):
-            section1 = Section1(XPath('section1'))
+            section1 = Section1(ID('section1'))
+            section3 = Section3(ID('section3'))
 
         class Page(object):
-            section2 = Section2(XPath('section2'))
+            section2 = Section2(ID('section2'))
 
-        section1_instance = Page.section2.section1
-        assert isinstance(section1_instance, Section1)
-        assert section1_instance.web_element is self.web_element
+        page = Page()
+        section2 = page.section2.find()
+        section1 = section2.section1.find()
+        assert isinstance(section1, Section1)
+        assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
-            call('xpath', 'section2'),
-            call('xpath', 'section1'),
+            call('id', 'section2'),
+            call('id', 'section1'),
         ])
+        section2.section3.find()
         self.web_element.find_element.assert_not_called()
 
     def test_search_with_driver__as_argument_to_element(self):
@@ -104,17 +139,19 @@ class TestElement(BaseTestCase):
             pass
 
         class Section2(Element):
-            section1 = Section1(XPath('section1'), search_with_driver=True)
+            section1 = Section1(ID('section1'), search_with_driver=True)
 
         class Page(object):
-            section2 = Section2(XPath('section2'))
+            section2 = Section2(ID('section2'))
 
-        section1_instance = Page.section2.section1
-        assert isinstance(section1_instance, Section1)
-        assert section1_instance.web_element is self.web_element
+        page = Page()
+        section2 = page.section2.find()
+        section1 = section2.section1.find()
+        assert isinstance(section1, Section1)
+        assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
-            call('xpath', 'section2'),
-            call('xpath', 'section1'),
+            call('id', 'section2'),
+            call('id', 'section1'),
         ])
         self.web_element.find_element.assert_not_called()
 
@@ -123,18 +160,20 @@ class TestElement(BaseTestCase):
             pass
 
         class Section2(Element):
-            section1 = Section1(XPath('section1'))
+            section1 = Section1(ID('section1'))
             section1.search_with_driver = True
 
         class Page(object):
-            section2 = Section2(XPath('section2'))
+            section2 = Section2(ID('section2'))
 
-        section1_instance = Page.section2.section1
-        assert isinstance(section1_instance, Section1)
-        assert section1_instance.web_element is self.web_element
+        page = Page()
+        section2 = page.section2.find()
+        section1 = section2.section1.find()
+        assert isinstance(section1, Section1)
+        assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
-            call('xpath', 'section2'),
-            call('xpath', 'section1'),
+            call('id', 'section2'),
+            call('id', 'section1'),
         ])
         self.web_element.find_element.assert_not_called()
 
@@ -143,37 +182,19 @@ class TestElement(BaseTestCase):
             pass  # search_with_driver = False
 
         class Section2(Element):
-            section1 = Section1(XPath('section1'))
+            section1 = Section1(ID('section1'))
             search_with_driver = True
 
         class Page(object):
-            section2 = Section2(XPath('section2'))
+            section2 = Section2(ID('section2'))
 
-        section1 = Page.section2.section1
+        page = Page()
+        section2 = page.section2.find()
+        section1 = section2.section1.find()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element_inh
-        self.driver.find_element.assert_has_calls([call('xpath', 'section2'), ])
-        self.web_element.find_element.assert_has_calls([call('xpath', 'section1'), ])
-
-    def test_search_with_driver__non_element_instances_will_use_driver(self):
-        class Page(object):
-            e = Element(XPath(''))
-
-        s = Page()
-        e = s.e
-
-        m = Mock()
-        e.__get__(m, Mock)
-        assert e.web_element is self.web_element
-
-    def test_not_permitted_attribute(self):
-        with self.assertRaises(AttributeNotPermitted):
-            class Section(Element):
-                web_element = None
-
-    def test_not_permitted_attribute_from_elements_not_affected(self):
-        class Section(Element):
-            web_elements = None
+        self.driver.find_element.assert_has_calls([call('id', 'section2'), ])
+        self.web_element.find_element.assert_has_calls([call('id', 'section1'), ])
 
     def test_inherited_fillable_elements(self):
         class Section2(Element, Fillable):
@@ -189,7 +210,7 @@ class TestElement(BaseTestCase):
             section1 = Section1()
 
         # basic test
-        section1 = Page.section1
+        section1 = Page().section1.find()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element
 
@@ -250,7 +271,7 @@ class TestElement(BaseTestCase):
         class Page:
             section1 = Section1()
 
-        section1 = Page.section1
+        section1 = Page().section1.find()
         assert isinstance(section1, Section1)
 
         dict_to_fill = {
@@ -286,35 +307,33 @@ class TestElement(BaseTestCase):
 
     def test_replace_web_element_of_instance_at_runtime(self):
         class Section(Element):
-            element = Element(XPath('1'))
+            element = Element(ID('1'))
 
         class Page(object):
-            section = Section(XPath('2'))
+            section = Section(ID('2'))
 
         page = Page()
-        section = page.section
+        section = page.section.find()
         section.web_element = None
-        with catch_warnings(record=True) as w:
-            e = section.element
+        with self.assertRaises(AttributeError):
+            with catch_warnings(record=True) as w:
+                section.element.find()
 
         assert issubclass(w[-1].category, InvalidWebElementInstance)
-        eq_(str(w[-1].message), '`web_element` instance not subclasses `WebElement` in `Section` object at runtime')
+        eq_(str(w[-1].message), '`web_element` not subclasses `WebElement` in `Section` object at runtime')
 
     def test_search_with_driver_must_be_of_bool_type(self):
         class Section(Element):
             search_with_driver = None
-
-        class Page(object):
-            section = Section(XPath(''))
-
         with self.assertRaises(TypeError) as e:
-            s = Page.section
+            class Page(object):
+                section = Section(XPath(''))
 
         eq_(e.exception.message, '`search_with_driver` must be of `bool` type, got `NoneType`')
 
     def test_stale_element_exception(self):
-        web_element_1 = Mock(return_value=self.web_element_inh, name='web_element_1')
-        web_element_2 = Mock(return_value=self.web_element_inh, name='web_element_2')
+        web_element_1 = Mock(return_value=self.web_element_inh, name='web_element_1', spec=WebElement)
+        web_element_2 = Mock(return_value=self.web_element_inh, name='web_element_2', spec=WebElement)
 
         self.web_element.find_element.side_effect = [
             web_element_1,
@@ -326,72 +345,84 @@ class TestElement(BaseTestCase):
             element = Element(XPath('element_locator'))
 
             def test_element(self):
-                el1 = self.element
+                el1 = self.element.find()
                 eq_(el1.web_element, web_element_1)
-                el2 = self.element
+                el2 = self.element.find()
                 eq_(el2.web_element, web_element_2)
 
         class Page(object):
             section = Section()
 
-        page = Page()
-        page.section.test_element()
+        Page().section.find().test_element()
 
 
 class TestElements(BaseTestCase):
     def test_declaration(self):
         class Sections(Elements):
-            pass
+            locator = ID('1')
 
-        sections = Sections(XPath(''))
+        class Page(object):
+            sections = Sections()
 
     def test_page_with_custom_elements(self):
-        l = XPath('.')
+        class Buttons(Elements):
+            locator = ID('1')
+            base_class = Button
 
-        class Sections(Elements):
+        class Page(object):
+            buttons = Buttons()
+
+        page = Page()
+        s = page.buttons.find()
+        eq_(s.elements, [self.web_element, ])
+        assert isinstance(s.elements[0], Button)
+        assert isinstance(s, Buttons)
+        self.driver.find_elements.assert_called_once_with(*ID('1').get())
+
+
+class TestMixins(BaseTestCase):
+    def setUp(self):
+        super(TestMixins, self).setUp()
+
+        class Mixin1(object):
+            test_mixin_1 = None
+
+        class Mixin2(object):
+            test_mixin_2 = None
+
+        self.Mixin1 = Mixin1
+        self.Mixin2 = Mixin2
+
+    def test_mixins_are_arguments(self):
+        class Page(object):
+            element = Element(ID('1'), mixins=(self.Mixin1, self.Mixin2))
+
+        element_instance = Page().element.find()
+        assert element_instance.web_element is self.web_element
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')
+
+    def test_mixins_are_properties(self):
+        class Section(Element):
+            mixins = (self.Mixin1, self.Mixin2)
+
+        class Page(object):
+            section = Section(ID('1'))
+
+        element_instance = Page().section.find()
+        assert element_instance.web_element is self.web_element
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')
+
+    def test_mixins_are_class_bases(self):
+        # python way =)
+        class Section(self.Mixin1, self.Mixin2, Element):
             pass
 
         class Page(object):
-            sections = Sections(l)
+            section = Section(ID('1'))
 
-        page = Page()
-        s = page.sections
-        eq_(s.web_elements, [self.web_element, ])
-        self.driver.find_elements.assert_called_once_with(l.by, l.value)
-
-    def test_not_permitted_attribute(self):
-        with self.assertRaises(AttributeNotPermitted):
-            class Section(Elements):
-                web_elements = None
-
-    def test_not_permitted_attribute_from_element_not_affected(self):
-        class Section(Elements):
-            web_element = None
-
-    def test_finding_elements_with_elements(self):
-        class InnerStructure(Elements):
-            pass
-
-        class OuterStructure(Elements):
-            inner_structure = InnerStructure(XPath(''))
-
-        class Page(object):
-            outer_structure = OuterStructure(XPath(''))
-
-        # override _get_finder method ?
-        # won't fix, it is normal thing that i can find elements only with single element
-        # and if i want to find elements with elements i should implement
-        # this feature by myself in custom elements
-        page = Page()
-        with catch_warnings(record=True) as w:
-            s = page.outer_structure.inner_structure
-
-        assert issubclass(w[-1].category, InvalidWebElementInstance)
-
-
-class TestCustomElements(BaseTestCase):
-    pass
-
-
-class TestAbstract(TestCase):
-    pass
+        element_instance = Page().section.find()
+        assert element_instance.web_element is self.web_element
+        assert hasattr(element_instance, 'test_mixin_1')
+        assert hasattr(element_instance, 'test_mixin_2')

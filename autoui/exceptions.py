@@ -10,12 +10,12 @@ class InvalidLocator(AutoUIException):
     pass
 
 
-class AttributeNotPermitted(AutoUIException):
-    pass
+# class AttributeNotPermitted(AutoUIException):
+#     pass
 
 
-class MethodNotOverridden(AutoUIException):
-    pass
+# class MethodNotOverridden(AutoUIException):
+#     pass
 
 
 class InvalidWebElementInstance(AutoUIWarning):
@@ -24,6 +24,10 @@ class InvalidWebElementInstance(AutoUIWarning):
 
 class DebugException(AutoUIException):
     """
-    for debug
+    for debug purposes
     """
+    pass
+
+
+class PropertyInstantiateException(Exception):
     pass
