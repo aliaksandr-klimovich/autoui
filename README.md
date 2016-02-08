@@ -1,7 +1,8 @@
 # autoui
-Web site automation testing framework.
 
-Status: ![travis ci build status](https://travis-ci.org/alex-klimovich/autoui.svg?branch=master)
+[![Build Status](https://travis-ci.org/alex-klimovich/autoui.svg?branch=master)](https://travis-ci.org/alex-klimovich/autoui)
+
+Web site automation testing framework.
 
 The goal is to show how to implement custom page object pattern in python. 
 This project was inspired by `webium` project and structural patterns in java.
