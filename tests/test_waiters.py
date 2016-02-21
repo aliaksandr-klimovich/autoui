@@ -10,7 +10,7 @@ from tests.test_app.web_server import base_url
 
 
 class TestWaiters(BaseTestCaseWithServer):
-    url = base_url + '/page1'
+    url = base_url + '/waiters'
 
     @classmethod
     def setUpClass(cls):

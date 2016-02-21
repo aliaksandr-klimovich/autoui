@@ -1,13 +1,13 @@
 import cherrypy
 
 
-base_port = '8080'
-base_url = 'http://127.0.0.1:' + base_port
+base_port = 8080
+base_url = 'http://127.0.0.1:' + str(base_port)
 
 
 class Root(object):
     @cherrypy.expose
-    def page1(self):
+    def waiters(self):
         return """<!doctype html>
 <html lang="en">
 <head>
@@ -37,6 +37,84 @@ document.getElementById("b-01").onclick = function(e) {
 </body>
 </html>"""
 
+    @cherrypy.expose
+    def table(self):
+        return """<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+</style>
+<body>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>IP</th>
+            <th>Time</th>
+            <th>Started</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>name1</td>
+            <td>127.0.0.1</td>
+            <td>0 days, 6:37:32</td>
+            <td>Thu, 18 Feb 2016 09:05:15</td>
+            <td>up</td>
+        </tr>
+        <tr>
+            <td>name2</td>
+            <td>127.0.0.2</td>
+            <td>0 days, 0:24:59</td>
+            <td>Thu, 18 Feb 2016 15:15:26</td>
+            <td>down</td>
+        </tr>
+        <tr>
+            <td>name3</td>
+            <td>127.0.0.3</td>
+            <td>0 days, 7:43:54</td>
+            <td>Thu, 18 Feb 2016 07:57:12</td>
+            <td>down</td>
+        </tr>
+        <tr>
+            <td>name4</td>
+            <td>127.0.0.4</td>
+            <td>0 days, 8:18:11</td>
+            <td>Thu, 18 Feb 2016 07:15:12</td>
+            <td>down</td>
+        </tr>
+        <tr>
+            <td>name5</td>
+            <td>127.0.0.5</td>
+            <td>0 days, 6:44:37</td>
+            <td>Thu, 18 Feb 2016 08:55:45</td>
+            <td>down</td>
+        </tr>
+        <tr>
+            <td>name6</td>
+            <td>127.0.0.6</td>
+            <td>0 days, 8:17:46</td>
+            <td>Thu, 18 Feb 2016 07:17:13</td>
+            <td>down</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>"""
+
 
 def start_test_web_app():
     cherrypy.config.update({
@@ -50,3 +128,7 @@ def start_test_web_app():
 def stop_test_web_app():
     cherrypy.engine.stop()
     cherrypy.engine.exit()
+
+
+if __name__ == '__main__':
+    cherrypy.quickstart(Root())
