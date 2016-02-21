@@ -67,3 +67,7 @@ class Image(Element):
 
 class Select(Element):
     pass
+
+
+class Table(Element):
+    pass

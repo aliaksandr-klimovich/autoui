@@ -77,6 +77,7 @@ class TestElement(BaseTestCase):
 
         Page().custom_section.find()
         self.driver.find_element.assert_called_once_with(self.xpath.by, self.xpath.value)
+        eq_(Page().custom_section.locator, self.xpath)
 
     def test_incorrect_locator_type__pass_instance(self):
         with self.assertRaises(InvalidLocator) as e:
@@ -103,7 +104,7 @@ class TestElement(BaseTestCase):
 
     def test_pass_nothing(self):
         with self.assertRaises(InvalidLocator) as e:
-            class Page:
+            class Page(object):
                 locator = Element()
 
         eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `NoneType`')

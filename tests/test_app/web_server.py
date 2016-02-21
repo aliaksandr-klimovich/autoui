@@ -1,7 +1,8 @@
 import cherrypy
 
 
-base_url = 'http://127.0.0.1:8080'
+base_port = '8080'
+base_url = 'http://127.0.0.1:' + base_port
 
 
 class Root(object):
@@ -39,7 +40,7 @@ document.getElementById("b-01").onclick = function(e) {
 
 def start_test_web_app():
     cherrypy.config.update({
-        'server.socket_port': 8080,
+        'server.socket_port': base_port,
         'log.screen': False,
     })
     cherrypy.tree.mount(Root(), '/', {'/': {'tools.gzip.on': True}})
