@@ -7,7 +7,9 @@ class PropertyMeta(type):
         super(PropertyMeta, cls).__init__(name, bases, namespace)
     
     def __iter__(cls):
-        yield {k: v for k, v in cls.__dict__.items() if not k.startswith('_') and not callable(v)}
+        d = {k: v for k, v in cls.__dict__.items() if not k.startswith('_') and not callable(v)}
+        for k, v in d.items():
+            yield {k: v}
 
 
 class Property(object):

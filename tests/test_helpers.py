@@ -39,6 +39,14 @@ class TestProperty(TestCase):
         eq_(Config.a, 1)
         eq_(Config.b, 4)
 
+    def test_iterator(self):
+        class Config(Property):
+            a = 1
+            b = 2
+
+        for i in Config:
+            print i
+
 
 class TestGlobalProperty(TestCase):
     def test_change_value_from_another_module(self):
