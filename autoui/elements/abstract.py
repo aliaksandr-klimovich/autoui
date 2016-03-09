@@ -121,6 +121,9 @@ class Element(_CommonElement):
                       timeout
                   ))
 
+    def get_locators(self):
+        pass
+
 
 class Elements(_CommonElement):
     base_class = None

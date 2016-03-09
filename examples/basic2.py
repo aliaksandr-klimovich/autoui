@@ -21,7 +21,7 @@ class FiveDaysForecast(Element):
 
 class MinskTheBy(BasePage):
     url = 'http://minsk.the.by/'
-    links = Links(XPath('//a'))
+    links = Links(XPath('//a[starts-with(@href, "http")]'))
     five_days_forecast = FiveDaysForecast()
 
     def get_all_links(self):
@@ -29,10 +29,10 @@ class MinskTheBy(BasePage):
 
 
 if __name__ == '__main__':
-    get_driver().set_window_size(800, 1200)
+    get_driver().set_window_size(800, 600)
     minsk_the_by = MinskTheBy()
     minsk_the_by.get()
-    print minsk_the_by.get_all_links()
-    print u'Сегодня ' + minsk_the_by.five_days_forecast.find().today.find().day.find().text + u' число месяца ' + \
-        minsk_the_by.five_days_forecast.find().today.find().month.find().text
+    forecast_today = minsk_the_by.five_days_forecast().today()
+    print u'Сегодня ' + forecast_today.day().text + u' число месяца ' + forecast_today.month().text
+    get_driver().save_screenshot('screenshot.png')
     get_driver().quit()

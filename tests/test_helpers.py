@@ -28,6 +28,17 @@ class TestProperty(TestCase):
             Config()
         eq_(e.exception.message, 'Do not instantiate property class, it is not permitted')
 
+    def test_internal_functions(self):
+        class Config(Property):
+            a = 1
+            b = lambda: 2
+
+        Config.a = 3
+        Config.b = 4
+        Config.reset()
+        eq_(Config.a, 1)
+        eq_(Config.b, 4)
+
 
 class TestGlobalProperty(TestCase):
     def test_change_value_from_another_module(self):
