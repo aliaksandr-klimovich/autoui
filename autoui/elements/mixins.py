@@ -34,9 +34,9 @@ class Fillable(object):
         for _k, _v in data.items():
             if _v is not None and _k in _names:
                 if self.stop_propagation:
-                    getattr(self, _k).find().fill(_v, stop=True)
+                    getattr(self, _k)().fill(_v, stop=True)
                 else:
-                    getattr(self, _k).find().fill(_v)
+                    getattr(self, _k)().fill(_v)
 
     def get_state(self, stop=False):
         """
@@ -49,9 +49,9 @@ class Fillable(object):
         state = {}
         for name in _names:
             if self.stop_propagation:
-                s = getattr(self, name).find().get_state(stop=True)
+                s = getattr(self, name)().get_state(stop=True)
                 if s is not None:
                     state[name] = s
             else:
-                state[name] = getattr(self, name).find().get_state()
+                state[name] = getattr(self, name)().get_state()
         return state

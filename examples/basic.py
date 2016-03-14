@@ -14,6 +14,4 @@ class YaPage(BasePage):
 
 
 if __name__ == '__main__':
-    ya_page = YaPage()
-    ya_page.get()
-    ya_page.find_text('autoui')
+    YaPage().get().find_text('autoui')

@@ -1,3 +1,5 @@
+from selenium.webdriver.support.select import Select as SeleniumSelect
+
 from autoui.elements.abstract import Element, Elements
 from autoui.elements.mixins import Fillable
 
@@ -65,9 +67,42 @@ class Image(Element):
         return self.web_element.size['height']
 
 
-class Select(Element):
-    pass
+class Select(Element, Fillable):
+    def find(self):
+        super(Select, self).find()
+        self.selenium_select = SeleniumSelect(self.web_element)
+
+    def select_by_visible_text(self, text):
+        self.selenium_select.select_by_visible_text(text)
+
+    def fill(self, data, stop=False):
+        self.select_by_visible_text(data)
+
+    def get_state(self, stop=False):
+        return self.selenium_select.first_selected_option.text
 
 
 class Table(Element):
     pass
+
+
+class Checkbox(Element, Fillable):
+    def is_checked(self):
+        return self.web_element.is_selected()
+
+    def check(self):
+        if not self.is_checked():
+            self.web_element.click()
+
+    def uncheck(self):
+        if self.is_checked():
+            self.web_element.click()
+
+    def fill(self, data, stop=False):
+        if data:
+            self.check()
+        else:
+            self.uncheck()
+
+    def get_state(self, stop=False):
+        return self.is_checked()

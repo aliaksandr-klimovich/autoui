@@ -29,10 +29,8 @@ class MinskTheBy(BasePage):
 
 
 if __name__ == '__main__':
-    get_driver().set_window_size(800, 600)
-    minsk_the_by = MinskTheBy()
-    minsk_the_by.get()
-    forecast_today = minsk_the_by.five_days_forecast().today()
+    d = get_driver()
+    d.set_window_size(800, 600)
+    forecast_today = MinskTheBy().get().five_days_forecast().today()
     print u'Сегодня ' + forecast_today.day().text + u' число месяца ' + forecast_today.month().text
-    get_driver().save_screenshot('screenshot.png')
-    get_driver().quit()
+    d.quit()

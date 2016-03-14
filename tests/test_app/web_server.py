@@ -115,6 +115,48 @@ th, td {
 </body>
 </html>"""
 
+    @cherrypy.expose
+    def checkbox(self):
+        return """<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+<form action="">
+<input type="checkbox" name="vehicle" value="Bike" id="ch-01">I have a bike<br>
+<input type="checkbox" name="vehicle" value="Car" id="ch-02">I have a car
+</form>
+
+<script>
+document.getElementById("ch-01").checked = true;
+</script>
+
+</body>
+</html>"""
+
+    @cherrypy.expose
+    def select(self):
+        return """<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+<select id="s-01">
+  <option value="volvo">Volvo</option>
+  <option value="saab">Saab</option>
+  <option value="mercedes">Mercedes</option>
+  <option value="audi">Audi</option>
+</select>
+
+</body>
+</html>"""
+
 
 def start_test_web_app():
     cherrypy.config.update({
