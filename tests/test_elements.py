@@ -1,5 +1,3 @@
-from warnings import catch_warnings
-
 from mock import Mock, call
 from nose.tools import eq_
 from selenium.common.exceptions import StaleElementReferenceException
@@ -306,22 +304,24 @@ class TestElement(BaseTestCase):
         result_dict = {'s1_el1': 's1_el1_value'}
         eq_(result_dict, state)
 
-    def test_replace_web_element_of_instance_at_runtime(self):
-        class Section(Element):
-            element = Element(ID('1'))
-
-        class Page(object):
-            section = Section(ID('2'))
-
-        page = Page()
-        section = page.section.find()
-        section.web_element = None
-        with self.assertRaises(AttributeError):
-            with catch_warnings(record=True) as w:
-                section.element.find()
-
-        assert issubclass(w[-1].category, InvalidWebElementInstance)
-        eq_(str(w[-1].message), '`web_element` not subclasses `WebElement` in `Section` object at runtime')
+    # def test_replace_web_element_of_instance_at_runtime(self):
+    #     class Section(Element):
+    #         element = Element(ID('1'))
+    #
+    #     class Page(object):
+    #         section = Section(ID('2'))
+    #
+    #     page = Page()
+    #     section = page.section.find()
+    #     section.web_element = 1
+    #     # `section.web_element = None` will give no effect because of parent realization
+    #     # (https://github.com/alex-klimovich/autoui/issues/21)
+    #     with self.assertRaises(AttributeError):
+    #         with catch_warnings(record=True) as w:
+    #             section.element.find()
+    #
+    #     assert issubclass(w[-1].category, InvalidWebElementInstance)
+    #     eq_(str(w[-1].message), '`web_element` not subclasses `WebElement` in `Section` object at runtime')
 
     def test_search_with_driver_must_be_of_bool_type(self):
         class Section(Element):
@@ -355,6 +355,54 @@ class TestElement(BaseTestCase):
             section = Section()
 
         Page().section.find().test_element()
+
+    # def test_instance_creation_in_runtime__not_instance(self):
+    #     class ParentElement(Element):
+    #         locator = XPath('.')
+    #
+    #     class ChildElement(Element):
+    #         locator = XPath('.')
+    #
+    #     with self.assertRaises(AssertionError) as err:
+    #         child_element = ChildElement(parent=ParentElement)
+    #     assert err.exception.message == '`parent` should be instance'
+
+    # def test_instance_creation_in_runtime__not_instance_of_Element(self):
+    #     class ParentElement(object):
+    #         pass
+    #
+    #     class ChildElement(Element):
+    #         locator = XPath('.')
+    #
+    #     with self.assertRaises(AssertionError) as err:
+    #         child_element = ChildElement(parent=ParentElement())
+    #     assert err.exception.message == '`parent` should be instance of Element(s) class'
+
+    def test_instance_creation_at_runtime(self):
+        class ParentElement(Element):
+            locator = ID('ParentElement')
+
+        class ChildElement(Element):
+            locator = ID('ChildElement')
+
+        parent_element = ParentElement()
+        # without finding parent
+        child_element = ChildElement(parent=parent_element)
+        child_element.find()
+        assert parent_element.web_element is None
+        assert child_element.web_element is self.web_element
+        assert child_element._instance is parent_element
+        assert child_element._owner is ParentElement
+        self.driver.find_element.assert_called_once_with(*ID('ChildElement').get())
+        self.web_element.assert_not_called()
+
+        parent_element.find()
+        child_element.find()
+        assert parent_element.web_element is self.web_element
+        assert child_element.web_element is self.web_element_inh
+        assert child_element._instance is parent_element
+        assert child_element._owner is ParentElement
+        self.web_element.find_element.assert_called_once_with(*ID('ChildElement').get())
 
 
 class TestElements(BaseTestCase):

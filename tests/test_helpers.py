@@ -44,8 +44,8 @@ class TestProperty(TestCase):
             a = 1
             b = 2
 
-        for i in Config:
-            print i
+        # for i in Config:
+        #     print i
 
 
 class TestGlobalProperty(TestCase):

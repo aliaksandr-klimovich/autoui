@@ -22,11 +22,12 @@ class _CommonElement(object):
     search_with_driver = False
     mixins = None
 
-    def __init__(self, locator=None, search_with_driver=None, mixins=None):
+    def __init__(self, locator=None, search_with_driver=None, mixins=None, parent=None):
         """
         :param locator: instance of Locator
         :param search_with_driver: bool type parameter representing how web element will be found
         :param mixins: tuple containing classes
+        :param parent: instance to which attach current element
         """
         self.web_element = None
         self._instance = None
@@ -45,6 +46,17 @@ class _CommonElement(object):
         if self.mixins:
             self.__class__ = type(self.__class__.__name__, (self.__class__,) + self.mixins, {})
 
+        if parent:
+            # assert not isclass(parent), '`parent` should be instance'
+            # assert isinstance(parent, (Element, Elements)), '`parent` should be instance of Element(s) class'
+            # self._instance = parent
+            # self._owner = parent.__class__
+            if isclass(parent):
+                self._owner = parent
+            else:
+                self._instance = parent
+                self._owner = parent.__class__
+
     def __get__(self, instance, owner):
         self._instance = instance
         self._owner = owner
@@ -57,8 +69,9 @@ class _CommonElement(object):
     def _get_finder(self):
         # every element can be found 2 ways: using driver and using founded element
         if isinstance(self._instance, Element) and self.search_with_driver is False:
-            self._validate_web_element_of_instance()
-            return self._instance.web_element
+            # self._validate_web_element_of_instance()
+            if self._instance.web_element:
+                return self._instance.web_element
         return get_driver()
 
     def _validate_locator(self):
@@ -76,10 +89,10 @@ class _CommonElement(object):
             '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
                 self.__class__.__name__)
 
-    def _validate_web_element_of_instance(self):
-        if not isinstance(self._instance.web_element, WebElement):
-            warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
-                self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
+    # def _validate_web_element_of_instance(self):
+    #     if not isinstance(self._instance.web_element, WebElement):
+    #         warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
+    #             self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
 
 
 class Element(_CommonElement):

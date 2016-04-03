@@ -166,3 +166,22 @@ But what exactly I want to have? That the element can be found once again!
 If `Section` is updated than `find` method tries to obtain parent object
 to find it. After all `Section` will be found and I'll have chance to continue
 working with `Element`.
+
+### Feature 7: Attach elements to their parents
+
+Added possibility to attach elements to other classes at runtime.
+
+```python
+class ParentElement(Element):
+    locator = ID('ParentElement')
+
+class ChildElement(Element):
+    locator = ID('ChildElement')
+
+parent_element = ParentElement()
+parent_element.find()
+child_element = ChildElement(parent=parent_element)
+child_element.find()
+```
+
+This feature has not been tested in depth.
