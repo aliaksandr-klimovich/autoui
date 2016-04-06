@@ -82,10 +82,6 @@ class Select(Element, Fillable):
         return self.selenium_select.first_selected_option.text
 
 
-class Table(Element):
-    pass
-
-
 class Checkbox(Element, Fillable):
     def is_checked(self):
         return self.web_element.is_selected()

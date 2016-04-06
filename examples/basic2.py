@@ -2,7 +2,7 @@
 from autoui.base_page import BasePage
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
-from autoui.elements.implemented import Links, Text
+from autoui.elements.simple import Links, Text
 from autoui.locators import XPath, CSS
 
 
@@ -32,5 +32,5 @@ if __name__ == '__main__':
     d = get_driver()
     d.set_window_size(800, 600)
     forecast_today = MinskTheBy().get().five_days_forecast().today()
-    print u'Сегодня ' + forecast_today.day().text + u' число месяца ' + forecast_today.month().text
+    print u'Сегодня ' + forecast_today.day().text.strip() + u' число месяца ' + forecast_today.month().text.strip()
     d.quit()

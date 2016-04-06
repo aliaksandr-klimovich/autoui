@@ -1,5 +1,5 @@
 from autoui.base_page import BasePage
-from autoui.elements.implemented import Button, Input
+from autoui.elements.simple import Button, Input
 from autoui.locators import XPath, ID
 
 

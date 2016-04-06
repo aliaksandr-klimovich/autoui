@@ -1,6 +1,5 @@
 from copy import copy
 from inspect import isclass
-from warnings import warn
 
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
@@ -146,7 +145,7 @@ class Elements(_CommonElement):
         super(Elements, self).__init__(locator, search_with_driver, mixins)
         self.elements = []
         if base_class:
-            self.base_cls = base_class
+            self.base_class = base_class
         if base_class_mixins:
             self.base_class_mixins = base_class_mixins
 

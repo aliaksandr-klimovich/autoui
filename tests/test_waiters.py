@@ -3,7 +3,7 @@ from selenium.common.exceptions import TimeoutException
 
 from autoui.base_page import BasePage
 from autoui.driver import get_driver
-from autoui.elements.implemented import Button
+from autoui.elements.simple import Button
 from autoui.locators import ID
 from tests.base import BaseTestCaseWithServer
 from tests.test_app.web_server import base_url
