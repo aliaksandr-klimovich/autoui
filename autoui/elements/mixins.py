@@ -1,12 +1,12 @@
+from datetime import timedelta
+
+from autoui.config import Config
+from autoui.driver import get_driver
 from autoui.elements.abstract import Element
+from autoui.helpers import with_wait_element
 
 
-class Fillable(object):
-    """
-    Mixin class ``Fillable`` for ``Element`` class.
-    Those methods should be compatible,
-    i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
-    """
+class _CommonFilling(object):
     stop_propagation = False
 
     def _get_names(self):
@@ -22,22 +22,8 @@ class Fillable(object):
                 names.add(element_name)
         return names
 
-    def fill(self, data, stop=False):
-        """
-        Recursively fills all elements with data.
-        :param data: dictionary to fill with keys as elements names and values as fillable data
-        :param stop: reserved for stop recursion
-        """
-        if stop:
-            return
-        _names = self._get_names()
-        for _k, _v in data.items():
-            if _v is not None and _k in _names:
-                if self.stop_propagation:
-                    getattr(self, _k)().fill(_v, stop=True)
-                else:
-                    getattr(self, _k)().fill(_v)
 
+class Readable(_CommonFilling):
     def get_state(self, stop=False):
         """
         :return:  dict with state data, compatible with ``fill`` method
@@ -55,3 +41,55 @@ class Fillable(object):
             else:
                 state[name] = getattr(self, name)().get_state()
         return state
+
+
+class Settable(_CommonFilling):
+    def fill(self, data, stop=False):
+        """
+        Recursively fills all elements with data.
+        :param data: dictionary to fill with keys as elements names and values as fillable data
+        :param stop: reserved for stop recursion
+        """
+        if stop:
+            return
+        _names = self._get_names()
+        for _k, _v in data.items():
+            if _v is not None and _k in _names:
+                if self.stop_propagation:
+                    getattr(self, _k)().fill(_v, stop=True)
+                else:
+                    getattr(self, _k)().fill(_v)
+
+
+class Filling(Readable, Settable):
+    """
+    Mixin class ``Filling`` for ``Element`` class.
+    Those methods should be compatible,
+    i.e. data, obtained with ``get_state`` method, should be capable to pass to ``fill`` method without exceptions.
+    """
+
+
+class WaitingElement(object):
+    @with_wait_element(timedelta(seconds=Config.TIMEOUT), timedelta(seconds=Config.POLL_FREQUENCY))
+    def find(self):
+        obj = super(WaitingElement, self).find()
+        self.wait_until_visible()
+        return obj
+
+
+class ScrollingElement(object):
+    def find(self):
+        obj = super(ScrollingElement, self).find()
+        self.scroll_to_element()
+        return obj
+
+    def scroll_to_element(self):
+        get_driver().execute_script('return arguments[0].scrollIntoView();', self.web_element)
+
+
+class WaitingAndScrollingElement(ScrollingElement, WaitingElement):
+    # note reversed class order while inheriting
+    # execution: ScrollingElement.find -- (super) --> WaitingElement.find() --> ... -->
+    #            WaitingElement.wait_until_visible() -- (callback) -->
+    #            ScrollingElement.scroll_to_element()
+    pass

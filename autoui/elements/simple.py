@@ -1,7 +1,7 @@
 from selenium.webdriver.support.select import Select as SeleniumSelect
 
 from autoui.elements.abstract import Element, Elements
-from autoui.elements.mixins import Fillable
+from autoui.elements.mixins import Filling
 
 
 class Text(Element):
@@ -37,7 +37,7 @@ class Links(Elements):
         return [element.web_element.get_attribute('href') for element in self.elements]
 
 
-class Input(Element, Fillable):
+class Input(Element, Filling):
     def fill(self, data, stop=False):
         self.type(data)
 
@@ -67,7 +67,7 @@ class Image(Element):
         return self.web_element.size['height']
 
 
-class Select(Element, Fillable):
+class Select(Element, Filling):
     def find(self):
         super(Select, self).find()
         self.selenium_select = SeleniumSelect(self.web_element)
@@ -82,7 +82,7 @@ class Select(Element, Fillable):
         return self.selenium_select.first_selected_option.text
 
 
-class Checkbox(Element, Fillable):
+class Checkbox(Element, Filling):
     def is_checked(self):
         return self.web_element.is_selected()
 

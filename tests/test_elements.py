@@ -4,8 +4,9 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.elements.abstract import Element, Elements
+from autoui.elements.helement import HElement
 from autoui.elements.simple import Input, Button
-from autoui.elements.mixins import Fillable
+from autoui.elements.mixins import Filling
 from autoui.exceptions import InvalidLocator, InvalidWebElementInstance
 from autoui.locators import XPath, ID
 from tests.base import BaseTestCase
@@ -196,11 +197,11 @@ class TestElement(BaseTestCase):
         self.web_element.find_element.assert_has_calls([call('id', 'section1'), ])
 
     def test_inherited_fillable_elements(self):
-        class Section2(Element, Fillable):
+        class Section2(Element, Filling):
             s2_el1 = Input(XPath('s2_el1'))
             s2_el2 = Input(XPath('s2_el2'))
 
-        class Section1(Element, Fillable):
+        class Section1(Element, Filling):
             locator = XPath('section1')
             section2 = Section2(XPath('section2'))
             s1_el1 = Input(XPath('s1_el1'))
@@ -256,12 +257,12 @@ class TestElement(BaseTestCase):
         eq_(dict_to_fill, state)
 
     def test_stop_propagation(self):
-        class Section2(Element, Fillable):
+        class Section2(Element, Filling):
             locator = XPath('section2')
             s2_el1 = Input(XPath('s2_el1'))
             s2_el2 = Input(XPath('s2_el2'))
 
-        class Section1(Element, Fillable):
+        class Section1(Element, Filling):
             locator = XPath('section1')
             stop_propagation = True
             section2 = Section2()
@@ -403,6 +404,18 @@ class TestElement(BaseTestCase):
         assert child_element._instance is parent_element
         assert child_element._owner is ParentElement
         self.web_element.find_element.assert_called_once_with(*ID('ChildElement').get())
+
+    def test_helement(self):
+        class ChildElement(HElement):
+            locator = ID('ChildElement')
+
+        class ParentElement(HElement):
+            locator = ID('ParentElement')
+            child_element = ChildElement()
+
+        # parent_element = ParentElement().find()
+        # child_element  = parent_element.child_element.find()
+        # todo: implement visibility change for quick testing
 
 
 class TestElements(BaseTestCase):

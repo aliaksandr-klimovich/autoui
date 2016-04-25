@@ -97,20 +97,20 @@ class CustomElement(Element):
 to find single element in section with driver.
 
 
-### Feature 4: Fillable elements
+### Feature 4: Filling elements
 To do fill fields more easy you can use dict with predefined values.
 Create your custom element, i.e. inherit from `Element` class.
-Then inherit from Fillable class.
+Then inherit from Filling class.
 Note, you must override `fill` or/and `get_state` method(s)
 if you want to do some special.
 
 ```python
-class Section2(Element, Fillable):
+class Section2(Element, Filling):
     locator = XPath('section2')
     s2_el1 = Input(XPath('s2_el1'))
     s2_el2 = Input(XPath('s2_el2'))
 
-class Section1(Element, Fillable):
+class Section1(Element, Filling):
     locator = XPath('section1')
     stop_propagation = True
     section2 = Section2()

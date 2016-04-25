@@ -44,15 +44,18 @@ class Table(Element):
     tbody = Tbody()
 
     def find(self):
+        """
+        find all elements to use them later in methods
+        """
         super(Table, self).find()
         self.thead.find().ths.find()
         map(lambda element: element.tds.find(), self.tbody.find().trs.find().elements)
         return self
 
-    def get_headers_str(self):
-        return self.thead.web_element.text.split()
-
     def get_headers(self):
         return self.thead.ths.elements
+
+    def get_headers_str(self):
+        return [th.web_element.text for th in self.thead.ths.elements]
 
     # TODO: implement more functionality

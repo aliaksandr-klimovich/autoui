@@ -8,7 +8,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from autoui.config import Config
 from autoui.driver import get_driver
-from autoui.exceptions import InvalidLocator, InvalidWebElementInstance, DebugException
+from autoui.exceptions import InvalidLocator, DebugException
 from autoui.locators import Locator
 
 
@@ -43,7 +43,7 @@ class _CommonElement(object):
         if mixins:
             self.mixins = mixins
         if self.mixins:
-            self.__class__ = type(self.__class__.__name__, (self.__class__,) + self.mixins, {})
+            self.__class__ = type(self.__class__.__name__, self.mixins + (self.__class__,), {})
 
         if parent:
             # assert not isclass(parent), '`parent` should be instance'
@@ -138,6 +138,10 @@ class Element(_CommonElement):
 
 
 class Elements(_CommonElement):
+    """
+    Describes multiple elements,
+    access found elements through `self.elements` list
+    """
     base_class = None
     base_class_mixins = None
 

@@ -1,3 +1,5 @@
+from nose.tools import eq_
+
 from autoui.driver import get_driver
 from autoui.elements.table import Table
 from autoui.locators import CSS
@@ -26,4 +28,7 @@ class TestTable(BaseTestCaseWithServer):
             locator = CSS('table')
 
         table = TestTable().find()
+        table_str = table.get_headers_str()
+        eq_(table_str, ['Name', 'IP', 'Time', 'Started', 'Status'])
+
         # TODO: assertions
