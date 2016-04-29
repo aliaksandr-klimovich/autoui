@@ -9,7 +9,7 @@ This project was inspired by `webium` project and structural patterns in java.
 It is not designed for production usage. It's only my own approach to test web sites.
 
 ## Requirements
-- python 2.7
+- python 2.7 or 3+
 - selenium
 - nose (for internal tests)
 - mock (for internal tests)
@@ -22,7 +22,7 @@ See `requirements.txt`.
 ### Basic test
 ```python
 from autoui.base_page import BasePage
-from autoui.elements.implemented import Button, Input
+from autoui.elements.simple import Button, Input
 from autoui.locators import XPath, ID
 
 

@@ -4,7 +4,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.elements.abstract import Element, Elements
-from autoui.elements.helement import HElement
+from autoui.elements.velement import VElement
 from autoui.elements.simple import Input, Button
 from autoui.elements.mixins import Filling
 from autoui.exceptions import InvalidLocator, InvalidWebElementInstance
@@ -406,10 +406,10 @@ class TestElement(BaseTestCase):
         self.web_element.find_element.assert_called_once_with(*ID('ChildElement').get())
 
     def test_helement(self):
-        class ChildElement(HElement):
+        class ChildElement(VElement):
             locator = ID('ChildElement')
 
-        class ParentElement(HElement):
+        class ParentElement(VElement):
             locator = ID('ParentElement')
             child_element = ChildElement()
 
