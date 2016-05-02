@@ -168,8 +168,6 @@ class Elements(_CommonElement):
             element._owner = self.__class__
             self.elements.append(element)
 
-        return self
-
     def wait_until_all_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         pass
 

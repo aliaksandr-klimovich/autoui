@@ -244,7 +244,7 @@ class TestElement(BaseTestCase):
             call.send_keys('s2_el1_value'),
             call.clear(),
             call.send_keys('s2_el2_value')
-        ])
+        ], any_order=True)
 
         self.web_element_inh.get_attribute.return_value = 's1_el1_value'
         self.web_element_inh_2.get_attribute.side_effect = ['s2_el1_value', 's2_el2_value']

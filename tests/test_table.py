@@ -12,12 +12,12 @@ class TestTable(BaseTestCaseWithServer):
 
     @classmethod
     def setUpClass(cls):
-        super(TestTable, cls).setUpClass()
+        super().setUpClass()
         get_driver().get(cls.url)
 
     @classmethod
     def tearDownClass(cls):
-        super(TestTable, cls).tearDownClass()
+        super().tearDownClass()
         get_driver().quit()
 
     def setUp(self):
