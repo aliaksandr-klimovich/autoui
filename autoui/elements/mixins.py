@@ -72,14 +72,14 @@ class Filling(Readable, Settable):
 class WaitingElement(object):
     @with_wait_element(timedelta(seconds=Config.TIMEOUT), timedelta(seconds=Config.POLL_FREQUENCY))
     def find(self):
-        obj = super(WaitingElement, self).find()
+        obj = super(WaitingElement, self)()
         self.wait_until_visible()
         return obj
 
 
 class ScrollingElement(object):
     def find(self):
-        obj = super(ScrollingElement, self).find()
+        obj = super(ScrollingElement, self)()
         self.scroll_to_element()
         return obj
 

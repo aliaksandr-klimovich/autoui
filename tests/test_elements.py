@@ -31,7 +31,7 @@ class TestElement(BaseTestCase):
             element = Element(self.xpath)
 
         page = Page()
-        element_instance = page.element.find()
+        element_instance = page.element()
         assert isinstance(element_instance, Element)
         assert element_instance.web_element is self.web_element
         assert element_instance._instance is page
@@ -44,7 +44,7 @@ class TestElement(BaseTestCase):
         class Page(object):
             element = Element(self.xpath)
 
-        element_instance = Page.element.find()
+        element_instance = Page.element()
         assert isinstance(element_instance, Element)
         assert element_instance.web_element is self.web_element
         assert element_instance._instance is None
@@ -82,13 +82,11 @@ class TestElement(BaseTestCase):
         with self.assertRaises(InvalidLocator) as e:
             class Page(object):
                 locator = Element('value')
-        eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `str`')
 
     def test_incorrect_locator_type__pass_class(self):
         with self.assertRaises(InvalidLocator) as e:
             class Page(object):
                 locator = Element(str)
-        eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `str`')
 
     def test_from_2_locators_first_of_instance_is_used(self):
         class Section(Element):
@@ -106,8 +104,6 @@ class TestElement(BaseTestCase):
             class Page(object):
                 locator = Element()
 
-        eq_(e.exception.message, '`locator` must be instance of class `Locator`, got `NoneType`')
-
     def test_search_with_driver__as_class_property(self):
         class Section1(Element):
             search_with_driver = True
@@ -123,8 +119,8 @@ class TestElement(BaseTestCase):
             section2 = Section2(ID('section2'))
 
         page = Page()
-        section2 = page.section2.find()
-        section1 = section2.section1.find()
+        section2 = page.section2()
+        section1 = section2.section1()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
@@ -145,8 +141,8 @@ class TestElement(BaseTestCase):
             section2 = Section2(ID('section2'))
 
         page = Page()
-        section2 = page.section2.find()
-        section1 = section2.section1.find()
+        section2 = page.section2()
+        section1 = section2.section1()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
@@ -167,8 +163,8 @@ class TestElement(BaseTestCase):
             section2 = Section2(ID('section2'))
 
         page = Page()
-        section2 = page.section2.find()
-        section1 = section2.section1.find()
+        section2 = page.section2()
+        section1 = section2.section1()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
@@ -189,8 +185,8 @@ class TestElement(BaseTestCase):
             section2 = Section2(ID('section2'))
 
         page = Page()
-        section2 = page.section2.find()
-        section1 = section2.section1.find()
+        section2 = page.section2()
+        section1 = section2.section1()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element_inh
         self.driver.find_element.assert_has_calls([call('id', 'section2'), ])
@@ -210,7 +206,7 @@ class TestElement(BaseTestCase):
             section1 = Section1()
 
         # basic test
-        section1 = Page().section1.find()
+        section1 = Page().section1()
         assert isinstance(section1, Section1)
         assert section1.web_element is self.web_element
 
@@ -271,7 +267,7 @@ class TestElement(BaseTestCase):
         class Page:
             section1 = Section1()
 
-        section1 = Page().section1.find()
+        section1 = Page().section1()
         assert isinstance(section1, Section1)
 
         dict_to_fill = {
@@ -331,8 +327,6 @@ class TestElement(BaseTestCase):
             class Page(object):
                 section = Section(XPath(''))
 
-        eq_(e.exception.message, '`search_with_driver` must be of `bool` type, got `NoneType`')
-
     def test_stale_element_exception(self):
         web_element_1 = Mock(return_value=self.web_element_inh, name='web_element_1', spec=WebElement)
         web_element_2 = Mock(return_value=self.web_element_inh, name='web_element_2', spec=WebElement)
@@ -347,15 +341,15 @@ class TestElement(BaseTestCase):
             element = Element(XPath('element_locator'))
 
             def test_element(self):
-                el1 = self.element.find()
+                el1 = self.element()
                 eq_(el1.web_element, web_element_1)
-                el2 = self.element.find()
+                el2 = self.element()
                 eq_(el2.web_element, web_element_2)
 
         class Page(object):
             section = Section()
 
-        Page().section.find().test_element()
+        Page().section().test_element()
 
     # def test_instance_creation_in_runtime__not_instance(self):
     #     class ParentElement(Element):
@@ -389,7 +383,7 @@ class TestElement(BaseTestCase):
         parent_element = ParentElement()
         # without finding parent
         child_element = ChildElement(parent=parent_element)
-        child_element.find()
+        child_element()
         assert parent_element.web_element is None
         assert child_element.web_element is self.web_element
         assert child_element._instance is parent_element
@@ -459,7 +453,7 @@ class TestMixins(BaseTestCase):
         class Page(object):
             element = Element(ID('1'), mixins=(self.Mixin1, self.Mixin2))
 
-        element_instance = Page().element.find()
+        element_instance = Page().element()
         assert element_instance.web_element is self.web_element
         assert hasattr(element_instance, 'test_mixin_1')
         assert hasattr(element_instance, 'test_mixin_2')
@@ -471,7 +465,7 @@ class TestMixins(BaseTestCase):
         class Page(object):
             section = Section(ID('1'))
 
-        element_instance = Page().section.find()
+        element_instance = Page().section()
         assert element_instance.web_element is self.web_element
         assert hasattr(element_instance, 'test_mixin_1')
         assert hasattr(element_instance, 'test_mixin_2')
@@ -484,7 +478,7 @@ class TestMixins(BaseTestCase):
         class Page(object):
             section = Section(ID('1'))
 
-        element_instance = Page().section.find()
+        element_instance = Page().section()
         assert element_instance.web_element is self.web_element
         assert hasattr(element_instance, 'test_mixin_1')
         assert hasattr(element_instance, 'test_mixin_2')

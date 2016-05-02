@@ -63,7 +63,8 @@ class _CommonElement(object):
 
     def __call__(self):
         # this feature causes absence of supported code inspection after dot
-        return self.find()
+        self.find()
+        return self
 
     def _get_finder(self):
         # every element can be found 2 ways: using driver and using founded element
@@ -111,7 +112,7 @@ class Element(_CommonElement):
             except:
                 raise
         self._validate_web_element()
-        return self
+        # return self
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()

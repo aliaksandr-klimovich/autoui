@@ -25,12 +25,12 @@ class MinskTheBy(BasePage):
     five_days_forecast = FiveDaysForecast()
 
     def get_all_links(self):
-        return self.links.find().hrefs
+        return self.links().hrefs
 
 
 if __name__ == '__main__':
     d = get_driver()
     d.set_window_size(800, 600)
     forecast_today = MinskTheBy().get().five_days_forecast().today()
-    print u'Сегодня ' + forecast_today.day().text.strip() + u' число месяца ' + forecast_today.month().text.strip()
+    print(u'Сегодня ' + forecast_today.day().text.strip() + u' число месяца ' + forecast_today.month().text.strip())
     d.quit()

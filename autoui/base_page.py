@@ -9,6 +9,6 @@ class BasePage(object):
     url = None
 
     def get(self, url=None):
-        url = self.url if self.url else url
+        url = self.url or url
         get_driver().get(url)
         return self
