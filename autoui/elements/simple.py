@@ -69,7 +69,7 @@ class Image(Element):
 
 class Select(Element, Filling):
     def find(self):
-        super(Select, self).find()
+        super().find()
         self.selenium_select = SeleniumSelect(self.web_element)
 
     def select_by_visible_text(self, text):

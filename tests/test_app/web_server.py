@@ -5,7 +5,7 @@ base_port = 8080
 base_url = 'http://127.0.0.1:' + str(base_port)
 
 
-class Root(object):
+class Root:
     @cherrypy.expose
     def waiters(self):
         return """<!doctype html>

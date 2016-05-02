@@ -6,7 +6,7 @@ from autoui.elements.abstract import Element
 from autoui.helpers import with_wait_element
 
 
-class _CommonFilling(object):
+class _CommonFilling:
     stop_propagation = False
 
     def _get_names(self):
@@ -69,17 +69,17 @@ class Filling(Readable, Settable):
     """
 
 
-class WaitingElement(object):
+class WaitingElement:
     @with_wait_element(timedelta(seconds=Config.TIMEOUT), timedelta(seconds=Config.POLL_FREQUENCY))
     def find(self):
-        obj = super(WaitingElement, self)()
+        obj = super()()
         self.wait_until_visible()
         return obj
 
 
-class ScrollingElement(object):
+class ScrollingElement:
     def find(self):
-        obj = super(ScrollingElement, self)()
+        obj = super()()
         self.scroll_to_element()
         return obj
 

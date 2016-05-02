@@ -3,7 +3,7 @@ from inspect import isclass
 from selenium.webdriver.common.by import By
 
 
-class Locator(object):
+class Locator:
     def __init__(self, by, value):
         if type(by) is not str:
             raise TypeError('`by` must be `str` type, got `{}`'.format(
@@ -24,39 +24,39 @@ class Locator(object):
 
 class XPath(Locator):
     def __init__(self, value):
-        super(XPath, self).__init__(By.XPATH, value)
+        super().__init__(By.XPATH, value)
 
 
 class CSS(Locator):
     def __init__(self, value):
-        super(CSS, self).__init__(By.CSS_SELECTOR, value)
+        super().__init__(By.CSS_SELECTOR, value)
 
 
 class ID(Locator):
     def __init__(self, value):
-        super(ID, self).__init__(By.ID, value)
+        super().__init__(By.ID, value)
 
 
 class ClassName(Locator):
     def __init__(self, value):
-        super(ClassName, self).__init__(By.CLASS_NAME, value)
+        super().__init__(By.CLASS_NAME, value)
 
 
 class TagName(Locator):
     def __init__(self, value):
-        super(TagName, self).__init__(By.TAG_NAME, value)
+        super().__init__(By.TAG_NAME, value)
 
 
 class Name(Locator):
     def __init__(self, value):
-        super(Name, self).__init__(By.NAME, value)
+        super().__init__(By.NAME, value)
 
 
 class LinkText(Locator):
     def __init__(self, value):
-        super(LinkText, self).__init__(By.LINK_TEXT, value)
+        super().__init__(By.LINK_TEXT, value)
 
 
 class PartialLinkText(Locator):
     def __init__(self, value):
-        super(PartialLinkText, self).__init__(By.PARTIAL_LINK_TEXT, value)
+        super().__init__(By.PARTIAL_LINK_TEXT, value)

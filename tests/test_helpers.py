@@ -26,7 +26,6 @@ class TestProperty(TestCase):
             pass
         with self.assertRaises(PropertyInstantiateException) as e:
             Config()
-        eq_(e.exception.message, 'Do not instantiate property class, it is not permitted')
 
     def test_internal_functions(self):
         class Config(Property):
@@ -43,9 +42,6 @@ class TestProperty(TestCase):
         class Config(Property):
             a = 1
             b = 2
-
-        # for i in Config:
-        #     print i
 
 
 class TestGlobalProperty(TestCase):

@@ -47,9 +47,9 @@ class Table(Element):
         """
         find all elements to use them later in methods
         """
-        super(Table, self).find()
-        self.thead.find().ths.find()
-        map(lambda element: element.tds.find(), self.tbody.find().trs.find().elements)
+        super().find()
+        self.thead().ths()
+        map(lambda element: element.tds(), self.tbody().trs().elements)
         return self
 
     def get_headers(self):

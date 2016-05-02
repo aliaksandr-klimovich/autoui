@@ -8,5 +8,5 @@ class VElement(Element):
         local_mixins = (WaitingAndScrollingElement, )
         if mixins:
             local_mixins = mixins + local_mixins
-        super(VElement, self).__init__(locator=locator, search_with_driver=search_with_driver,
+        super().__init__(locator=locator, search_with_driver=search_with_driver,
                                        mixins=local_mixins, parent=parent)

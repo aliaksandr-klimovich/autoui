@@ -27,7 +27,7 @@ class TestTable(BaseTestCaseWithServer):
         class TestTable(Table):
             locator = CSS('table')
 
-        table = TestTable().find()
+        table = TestTable()()
         table_str = table.get_headers_str()
         eq_(table_str, ['Name', 'IP', 'Time', 'Started', 'Status'])
 

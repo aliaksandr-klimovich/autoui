@@ -12,7 +12,7 @@ from autoui.exceptions import InvalidLocator, DebugException
 from autoui.locators import Locator
 
 
-class _CommonElement(object):
+class _CommonElement:
     """
     Class contains common part of two classes: Element and Elements.
     Do not use this class out of this module.
@@ -46,10 +46,6 @@ class _CommonElement(object):
             self.__class__ = type(self.__class__.__name__, self.mixins + (self.__class__,), {})
 
         if parent:
-            # assert not isclass(parent), '`parent` should be instance'
-            # assert isinstance(parent, (Element, Elements)), '`parent` should be instance of Element(s) class'
-            # self._instance = parent
-            # self._owner = parent.__class__
             if isclass(parent):
                 self._owner = parent
             else:
@@ -62,14 +58,12 @@ class _CommonElement(object):
         return self
 
     def __call__(self):
-        # this feature causes absence of supported code inspection after dot
         self.find()
         return self
 
     def _get_finder(self):
         # every element can be found 2 ways: using driver and using founded element
         if isinstance(self._instance, Element) and self.search_with_driver is False:
-            # self._validate_web_element_of_instance()
             if self._instance.web_element:
                 return self._instance.web_element
         return get_driver()
@@ -89,11 +83,6 @@ class _CommonElement(object):
             '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
                 self.__class__.__name__)
 
-    # def _validate_web_element_of_instance(self):
-    #     if not isinstance(self._instance.web_element, WebElement):
-    #         warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
-    #             self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
-
 
 class Element(_CommonElement):
     def find(self):
@@ -112,7 +101,6 @@ class Element(_CommonElement):
             except:
                 raise
         self._validate_web_element()
-        # return self
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()
@@ -147,7 +135,7 @@ class Elements(_CommonElement):
     base_class_mixins = None
 
     def __init__(self, locator=None, base_class=None, search_with_driver=None, mixins=None, base_class_mixins=None):
-        super(Elements, self).__init__(locator, search_with_driver, mixins)
+        super().__init__(locator, search_with_driver, mixins)
         self.elements = []
         if base_class:
             self.base_class = base_class
@@ -178,9 +166,6 @@ class Elements(_CommonElement):
                 element.__class__ = self.base_class
             element._instance = self
             element._owner = self.__class__
-            # i expect that locator can be assigned at runtime
-            # element.locator = None
-            # element.find = None
             self.elements.append(element)
 
         return self
