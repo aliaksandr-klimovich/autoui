@@ -1,6 +1,7 @@
 from copy import copy
 from inspect import isclass
 
+from datetime import timedelta
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions
@@ -9,6 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from autoui.config import Config
 from autoui.driver import get_driver
 from autoui.exceptions import InvalidLocator, DebugException
+from autoui.helpers import with_wait_element
 from autoui.locators import Locator
 
 
@@ -103,14 +105,10 @@ class Element(_CommonElement):
         self._validate_web_element()
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        finder = self._get_finder()
-        WebDriverWait(finder, timeout, poll_frequency). \
-            until(expected_conditions.visibility_of_element_located(self.locator.get()),
-                  'Searchable by `{}` element with `{}` is not visible during {} seconds'.format(
-                      self.locator,
-                      finder.__class__.__name__,
-                      timeout
-                  ))
+        @with_wait_element(timeout, poll_frequency)
+        def find():
+            pass
+        # TODO: implement it!
 
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()

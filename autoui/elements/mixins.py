@@ -72,16 +72,16 @@ class Filling(Readable, Settable):
 class WaitingElement:
     @with_wait_element(timedelta(seconds=Config.TIMEOUT), timedelta(seconds=Config.POLL_FREQUENCY))
     def find(self):
-        obj = super()()
+        super().find()
         self.wait_until_visible()
-        return obj
+        return self
 
 
 class ScrollingElement:
     def find(self):
-        obj = super()()
+        super().find()
         self.scroll_to_element()
-        return obj
+        return self
 
     def scroll_to_element(self):
         get_driver().execute_script('return arguments[0].scrollIntoView();', self.web_element)

@@ -399,7 +399,7 @@ class TestElement(BaseTestCase):
         assert child_element._owner is ParentElement
         self.web_element.find_element.assert_called_once_with(*ID('ChildElement').get())
 
-    def test_helement(self):
+    def test_velement(self):
         class ChildElement(VElement):
             locator = ID('ChildElement')
 
@@ -407,8 +407,8 @@ class TestElement(BaseTestCase):
             locator = ID('ParentElement')
             child_element = ChildElement()
 
-        # parent_element = ParentElement().find()
-        # child_element  = parent_element.child_element.find()
+        parent_element = ParentElement()()
+        child_element = parent_element.child_element()
         # todo: implement visibility change for quick testing
 
 
