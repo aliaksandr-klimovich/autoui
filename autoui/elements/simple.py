@@ -2,6 +2,7 @@ from selenium.webdriver.support.select import Select as SeleniumSelect
 
 from autoui.elements.abstract import Element, Elements
 from autoui.elements.mixins import Filling
+from autoui.elements.velement import VElement
 
 
 class Text(Element):
@@ -17,6 +18,10 @@ class Button(Element):
     @property
     def name(self):
         return self.web_element.text
+
+
+class VButton(Button, VElement):
+    pass
 
 
 class Buttons(Elements):
@@ -51,6 +56,10 @@ class Input(Element, Filling):
         if text is not None:
             self.web_element.clear()
             self.web_element.send_keys(text)
+
+
+class VInput(Input, VElement):
+    pass
 
 
 class Image(Element):

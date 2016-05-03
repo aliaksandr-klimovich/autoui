@@ -407,8 +407,8 @@ class TestElement(BaseTestCase):
             locator = ID('ParentElement')
             child_element = ChildElement()
 
-        parent_element = ParentElement()()
-        child_element = parent_element.child_element()
+        # parent_element = ParentElement()()
+        # child_element = parent_element.child_element()
         # todo: implement visibility change for quick testing
 
 

@@ -105,10 +105,18 @@ class Element(_CommonElement):
         self._validate_web_element()
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
+        finder = self._get_finder()
+        used_once = False
+
         @with_wait_element(timeout, poll_frequency)
         def find():
-            pass
-        # TODO: implement it!
+            nonlocal used_once
+            if used_once and hasattr(self._instance, '_instance') and hasattr(self._instance, '_owner'):
+                self._instance.find()
+            used_once = True
+            self.web_element = finder.find_element(*self.locator.get())
+            assert self.web_element.is_displayed()
+        find()
 
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         finder = self._get_finder()
