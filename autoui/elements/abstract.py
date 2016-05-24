@@ -1,7 +1,6 @@
 from copy import copy
 from inspect import isclass
 
-from datetime import timedelta
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions
@@ -105,28 +104,21 @@ class Element(_CommonElement):
         self._validate_web_element()
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        finder = self._get_finder()
-        used_once = False
-
         @with_wait_element(timeout, poll_frequency)
         def find():
-            nonlocal used_once
-            if used_once and hasattr(self._instance, '_instance') and hasattr(self._instance, '_owner'):
-                self._instance.find()
-            used_once = True
-            self.web_element = finder.find_element(*self.locator.get())
-            assert self.web_element.is_displayed()
+            self.find()
+            # TODO: can appear here a TimeoutException?
+            assert self.web_element.is_displayed(), \
+                'Web element is not visible during {} seconds'.format(timeout.total_seconds())
         find()
 
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        finder = self._get_finder()
-        WebDriverWait(finder, timeout, poll_frequency). \
-            until(expected_conditions.invisibility_of_element_located(self.locator.get()),
-                  'Searchable by `{}` element with `{}` is still visible during {} seconds'.format(
-                      self.locator,
-                      finder.__class__.__name__,
-                      timeout
-                  ))
+        @with_wait_element(timeout, poll_frequency)
+        def find():
+            self.find()
+            assert not self.web_element.is_displayed(), \
+                'Web element s not visible during {} seconds'.format(timeout.total_seconds())
+        find()
 
     def get_locators(self):
         pass

@@ -5,6 +5,7 @@ from autoui.locators import XPath, ID
 
 class YaPage(BasePage):
     url = 'http://ya.ru'
+
     input = Input(ID('text'))
     find = Button(XPath('//button[@type="submit"]'))
 

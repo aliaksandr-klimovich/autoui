@@ -1,7 +1,7 @@
 from selenium.webdriver.support.select import Select as SeleniumSelect
 
 from autoui.elements.abstract import Element, Elements
-from autoui.elements.mixins import Filling
+from autoui.elements.mixins import Filling, Clicking
 from autoui.elements.velement import VElement
 
 
@@ -11,10 +11,7 @@ class Text(Element):
         return self.web_element.text
 
 
-class Button(Element):
-    def click(self):
-        self.web_element.click()
-
+class Button(Clicking, Element):
     @property
     def name(self):
         return self.web_element.text
@@ -32,6 +29,10 @@ class Link(Element):
     @property
     def href(self):
         return self.web_element.get_attribute('href')
+
+
+class VLink(Link, VElement):
+    pass
 
 
 class Links(Elements):
@@ -91,6 +92,10 @@ class Select(Element, Filling):
         return self.selenium_select.first_selected_option.text
 
 
+class VSelect(Select, VElement):
+    pass
+
+
 class Checkbox(Element, Filling):
     def is_checked(self):
         return self.web_element.is_selected()
@@ -111,3 +116,7 @@ class Checkbox(Element, Filling):
 
     def get_state(self, stop=False):
         return self.is_checked()
+
+
+class VCheckBox(Checkbox, VElement):
+    pass

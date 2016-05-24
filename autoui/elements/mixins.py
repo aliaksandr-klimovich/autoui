@@ -88,8 +88,16 @@ class ScrollingElement:
 
 
 class WaitingAndScrollingElement(ScrollingElement, WaitingElement):
-    # note reversed class order while inheriting
-    # execution: ScrollingElement.find -- (super) --> WaitingElement.find() --> ... -->
-    #            WaitingElement.wait_until_visible() -- (callback) -->
-    #            ScrollingElement.scroll_to_element()
+    # note that class order is reversed when inheritance is used
+    # execution order: ScrollingElement.find -- (super) --> WaitingElement.find() --> ... -->
+    #                  WaitingElement.wait_until_visible() -- (callback) -->
+    #                  ScrollingElement.scroll_to_element()
     pass
+
+
+class Clicking:
+    def click(self, with_js=False):
+        if with_js:
+            get_driver().execute_script('return argument[0].click()', self.web_element)
+        else:
+            self.web_element.click()
