@@ -183,5 +183,3 @@ parent_element.find()
 child_element = ChildElement(parent=parent_element)
 child_element.find()
 ```
-
-This feature has not been tested in depth.

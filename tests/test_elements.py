@@ -6,7 +6,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 
 from autoui.elements.abstract import Element, Elements
-from autoui.elements.velement import VElement
+from autoui.elements.element import VElement
 from autoui.elements.simple import Input, Button
 from autoui.elements.mixins import Filling
 from autoui.exceptions import InvalidLocator
