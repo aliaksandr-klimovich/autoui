@@ -451,27 +451,6 @@ class TestMixins(BaseTestCase):
         self.Mixin1 = Mixin1
         self.Mixin2 = Mixin2
 
-    def test_mixins_are_arguments(self):
-        class Page(object):
-            element = Element(ID('1'), mixins=(self.Mixin1, self.Mixin2))
-
-        element_instance = Page().element()
-        assert element_instance.web_element is self.web_element
-        assert hasattr(element_instance, 'test_mixin_1')
-        assert hasattr(element_instance, 'test_mixin_2')
-
-    def test_mixins_are_properties(self):
-        class Section(Element):
-            mixins = (self.Mixin1, self.Mixin2)
-
-        class Page(object):
-            section = Section(ID('1'))
-
-        element_instance = Page().section()
-        assert element_instance.web_element is self.web_element
-        assert hasattr(element_instance, 'test_mixin_1')
-        assert hasattr(element_instance, 'test_mixin_2')
-
     def test_mixins_are_class_bases(self):
         # python way =)
         class Section(self.Mixin1, self.Mixin2, Element):

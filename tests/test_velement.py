@@ -1,6 +1,6 @@
 from autoui.base_page import BasePage
 from autoui.driver import get_driver
-from autoui.elements.simple import Input, Button, VButton, VInput
+from autoui.elements.simple import Input, Button
 from autoui.locators import ID
 from autoui.locators import XPath
 from tests.base import BaseTestCaseWithServer

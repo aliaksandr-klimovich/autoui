@@ -3,8 +3,6 @@ from inspect import isclass
 
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from autoui.config import Config
 from autoui.driver import get_driver
@@ -20,13 +18,11 @@ class _CommonElement:
     """
     locator = None
     search_with_driver = False
-    mixins = None
 
-    def __init__(self, locator=None, search_with_driver=None, mixins=None, parent=None):
+    def __init__(self, locator=None, search_with_driver=None, parent=None):
         """
         :param locator: instance of Locator
         :param search_with_driver: bool type parameter representing how web element will be found
-        :param mixins: tuple containing classes
         :param parent: instance to which attach current element
         """
         self.web_element = None
@@ -41,11 +37,6 @@ class _CommonElement:
             self.search_with_driver = search_with_driver
         self._validate_search_with_driver()
 
-        if mixins:
-            self.mixins = mixins
-        if self.mixins:
-            self.__class__ = type(self.__class__.__name__, self.mixins + (self.__class__,), {})
-
         if parent:
             if isclass(parent):
                 self._owner = parent
@@ -58,8 +49,8 @@ class _CommonElement:
         self._owner = owner
         return self
 
-    def __call__(self):
-        self.find()
+    def __call__(self, *args, **kwargs):
+        self.find(*args, **kwargs)
         return self
 
     def _get_finder(self):
@@ -106,7 +97,7 @@ class Element(_CommonElement):
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         @with_wait_element(timeout, poll_frequency)
         def find():
-            self.find()
+            Element.find(self)
             # TODO: can appear here a TimeoutException?
             assert self.web_element.is_displayed(), \
                 'Web element is not visible during {} seconds'.format(timeout.total_seconds())
@@ -115,7 +106,7 @@ class Element(_CommonElement):
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         @with_wait_element(timeout, poll_frequency)
         def find():
-            self.find()
+            Element.find(self)
             assert not self.web_element.is_displayed(), \
                 'Web element s not visible during {} seconds'.format(timeout.total_seconds())
         find()
@@ -130,15 +121,12 @@ class Elements(_CommonElement):
     access found elements through `self.elements` list
     """
     base_class = None
-    base_class_mixins = None
 
-    def __init__(self, locator=None, base_class=None, search_with_driver=None, mixins=None, base_class_mixins=None):
-        super().__init__(locator, search_with_driver, mixins)
+    def __init__(self, locator=None, base_class=None, search_with_driver=None):
+        super().__init__(locator, search_with_driver)
         self.elements = []
         if base_class:
             self.base_class = base_class
-        if base_class_mixins:
-            self.base_class_mixins = base_class_mixins
 
     def find(self):
         finder = self._get_finder()
@@ -158,16 +146,13 @@ class Elements(_CommonElement):
         for web_element in web_elements:
             element = web_element
             element.web_element = copy(web_element)
-            if self.base_class_mixins:
-                element.__class__ = type(self.base_class.__name__, (self.base_class,) + self.base_class_mixins, {})
-            else:
-                element.__class__ = self.base_class
+            element.__class__ = self.base_class
             element._instance = self
             element._owner = self.__class__
             self.elements.append(element)
 
     def wait_until_all_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        pass
+        map(lambda element: element.wait_until_visible(timeout, poll_frequency), self.elements)
 
     def wait_until_all_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        pass
+        map(lambda element: element.wait_until_invisible(timeout, poll_frequency), self.elements)

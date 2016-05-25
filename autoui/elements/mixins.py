@@ -1,9 +1,6 @@
-from datetime import timedelta
-
 from autoui.config import Config
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
-from autoui.helpers import with_wait_element
 
 
 class _CommonFilling:
@@ -70,17 +67,19 @@ class Filling(Readable, Settable):
 
 
 class WaitingElement:
-    def __call__(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        self.find(timeout=timeout, poll_frequency=poll_frequency)
-        return self
+    def __init__(self, *args, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timeout = timeout
+        self.poll_frequency = poll_frequency
 
-    def find(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        self.wait_until_visible(timeout=timeout, poll_frequency=poll_frequency)
+    def find(self, timeout=None, poll_frequency=None):
+        self.wait_until_visible(timeout=timeout if timeout else self.timeout,
+                                poll_frequency=poll_frequency if poll_frequency else self.poll_frequency)
 
 
 class ScrollingElement:
-    def find(self):
-        super().find()
+    def find(self, *args, **kwargs):
+        super().find(*args, **kwargs)
         self.scroll_to_element()
 
     def scroll_to_element(self):
@@ -88,16 +87,22 @@ class ScrollingElement:
 
 
 class WaitingAndScrollingElement(ScrollingElement, WaitingElement):
-    # note that class order is reversed when inheritance is used
-    # execution order: ScrollingElement.find -- (super) --> WaitingElement.find() --> ... -->
-    #                  WaitingElement.wait_until_visible() -- (callback) -->
-    #                  ScrollingElement.scroll_to_element()
-    pass
+    """
+    Combines scrolling and waiting functions.
+    First waiting function is executing (super call from scrolling) and then scrolling is executing.
+    """
 
 
 class Clicking:
     def click(self, with_js=False):
         if with_js:
-            get_driver().execute_script('return argument[0].click()', self.web_element)
+            get_driver().execute_script('return arguments[0].click();', self.web_element)
         else:
             self.web_element.click()
+
+
+class Descriptive:
+    def __get__(self, instance, owner):
+        super().__get__(instance, owner)
+        self.find()
+        return self
