@@ -1,7 +1,7 @@
 from selenium.webdriver.support.select import Select as SeleniumSelect
 
 from autoui.elements.abstract import Element, Elements
-from autoui.elements.mixins import Filling
+from autoui.elements.mixins import Filling, Clicking
 
 
 class Text(Element):
@@ -10,10 +10,7 @@ class Text(Element):
         return self.web_element.text
 
 
-class Button(Element):
-    def click(self):
-        self.web_element.click()
-
+class Button(Clicking, Element):
     @property
     def name(self):
         return self.web_element.text
@@ -69,7 +66,7 @@ class Image(Element):
 
 class Select(Element, Filling):
     def find(self):
-        super(Select, self).find()
+        super().find()
         self.selenium_select = SeleniumSelect(self.web_element)
 
     def select_by_visible_text(self, text):

@@ -1,12 +1,9 @@
-from datetime import timedelta
-
 from autoui.config import Config
 from autoui.driver import get_driver
 from autoui.elements.abstract import Element
-from autoui.helpers import with_wait_element
 
 
-class _CommonFilling(object):
+class _CommonFilling:
     stop_propagation = False
 
     def _get_names(self):
@@ -69,27 +66,43 @@ class Filling(Readable, Settable):
     """
 
 
-class WaitingElement(object):
-    @with_wait_element(timedelta(seconds=Config.TIMEOUT), timedelta(seconds=Config.POLL_FREQUENCY))
-    def find(self):
-        obj = super(WaitingElement, self).find()
-        self.wait_until_visible()
-        return obj
+class WaitingElement:
+    def __init__(self, *args, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timeout = timeout
+        self.poll_frequency = poll_frequency
+
+    def find(self, timeout=None, poll_frequency=None):
+        self.wait_until_visible(timeout=timeout if timeout else self.timeout,
+                                poll_frequency=poll_frequency if poll_frequency else self.poll_frequency)
 
 
-class ScrollingElement(object):
-    def find(self):
-        obj = super(ScrollingElement, self).find()
+class ScrollingElement:
+    def find(self, *args, **kwargs):
+        super().find(*args, **kwargs)
         self.scroll_to_element()
-        return obj
 
     def scroll_to_element(self):
         get_driver().execute_script('return arguments[0].scrollIntoView();', self.web_element)
 
 
 class WaitingAndScrollingElement(ScrollingElement, WaitingElement):
-    # note reversed class order while inheriting
-    # execution: ScrollingElement.find -- (super) --> WaitingElement.find() --> ... -->
-    #            WaitingElement.wait_until_visible() -- (callback) -->
-    #            ScrollingElement.scroll_to_element()
-    pass
+    """
+    Combines scrolling and waiting functions.
+    First waiting function is executing (super call from scrolling) and then scrolling is executing.
+    """
+
+
+class Clicking:
+    def click(self, with_js=False):
+        if with_js:
+            get_driver().execute_script('return arguments[0].click();', self.web_element)
+        else:
+            self.web_element.click()
+
+
+class Descriptive:
+    def __get__(self, instance, owner):
+        super().__get__(instance, owner)
+        self.find()
+        return self

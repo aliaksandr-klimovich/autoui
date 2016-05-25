@@ -1,5 +1,5 @@
+from datetime import timedelta
 from nose.tools import eq_
-from selenium.common.exceptions import TimeoutException
 
 from autoui.base_page import BasePage
 from autoui.driver import get_driver
@@ -14,7 +14,7 @@ class TestWaiters(BaseTestCaseWithServer):
 
     @classmethod
     def setUpClass(cls):
-        super(TestWaiters, cls).setUpClass()
+        super().setUpClass()
         get_driver().get(cls.url)
 
     @classmethod
@@ -34,14 +34,13 @@ class TestWaiters(BaseTestCaseWithServer):
         page = Page()
 
         button1 = page.button1
-        button1.find().click()
+        button1().click()
 
         button2 = page.button2
         button2.wait_until_visible()
-        eq_(button2.find().name, 'Text')
+        eq_(button2().name, 'Button')
 
         button1.click()
-
         button2.wait_until_invisible()
 
     def test_negative_wait_until_visible(self):
@@ -54,11 +53,11 @@ class TestWaiters(BaseTestCaseWithServer):
         page.get()
 
         button1 = page.button1
-        button1.find().click()
+        button1().click()
 
         button2 = page.button2
-        with self.assertRaises(TimeoutException) as e:
-            button2.wait_until_visible(timeout=1)
+        with self.assertRaises(AssertionError) as e:
+            button2.wait_until_visible(timeout=timedelta(seconds=1))
 
     def test_negative_wait_until_invisible(self):
         class Page(BasePage):
@@ -69,5 +68,5 @@ class TestWaiters(BaseTestCaseWithServer):
         page = Page()
         page.get()
 
-        with self.assertRaises(TimeoutException) as e:
-            page.button1.find().wait_until_invisible(timeout=1)
+        with self.assertRaises(AssertionError) as e:
+            page.button1.wait_until_invisible(timeout=timedelta(seconds=1))

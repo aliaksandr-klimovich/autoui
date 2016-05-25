@@ -5,7 +5,7 @@ base_port = 8080
 base_url = 'http://127.0.0.1:' + str(base_port)
 
 
-class Root(object):
+class Root:
     @cherrypy.expose
     def waiters(self):
         return """<!doctype html>
@@ -16,11 +16,20 @@ class Root(object):
 </head>
 <body>
 
-<button id="b-01">Click me</button>
-<button id="b-02" style="visibility: hidden">Text</button>
+<button id="b-01">Show/hide button</button>
+<button id="b-02" style="visibility: hidden">Button</button>
+
+<hr>
+
+<div id="d-01">
+    <button id="b-03">Change outer element</button>
+    <!--<button id="b-04">2</button>-->
+    <!--<button id="b-05">Reset</button>-->
+</div>
+
 
 <script>
-document.getElementById("b-01").onclick = function(e) {
+document.getElementById("b-01").onclick = function() {
     setTimeout(function(){
         var e = document.getElementById("b-02");
         var v = e.style.visibility;
@@ -30,8 +39,13 @@ document.getElementById("b-01").onclick = function(e) {
             e.style.visibility = "hidden";
         }
     }, 2000);
-    e.stopPropagation();
 };
+document.getElementById("b-03").onclick = function() {
+    var e = document.getElementById("d-01");
+    if (e.style.backgroundColor == "yellow") {
+        e.style.backgroundColor = "red";
+    } else { e.style.backgroundColor = "yellow"; }
+}
 </script>
 
 </body>

@@ -12,12 +12,12 @@ class TestTable(BaseTestCaseWithServer):
 
     @classmethod
     def setUpClass(cls):
-        super(TestTable, cls).setUpClass()
+        super().setUpClass()
         get_driver().get(cls.url)
 
     @classmethod
     def tearDownClass(cls):
-        super(TestTable, cls).tearDownClass()
+        super().tearDownClass()
         get_driver().quit()
 
     def setUp(self):
@@ -27,7 +27,7 @@ class TestTable(BaseTestCaseWithServer):
         class TestTable(Table):
             locator = CSS('table')
 
-        table = TestTable().find()
+        table = TestTable()()
         table_str = table.get_headers_str()
         eq_(table_str, ['Name', 'IP', 'Time', 'Started', 'Status'])
 

@@ -3,29 +3,26 @@ from inspect import isclass
 
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 
 from autoui.config import Config
 from autoui.driver import get_driver
 from autoui.exceptions import InvalidLocator, DebugException
+from autoui.helpers import with_wait_element
 from autoui.locators import Locator
 
 
-class _CommonElement(object):
+class _CommonElement:
     """
     Class contains common part of two classes: Element and Elements.
     Do not use this class out of this module.
     """
     locator = None
     search_with_driver = False
-    mixins = None
 
-    def __init__(self, locator=None, search_with_driver=None, mixins=None, parent=None):
+    def __init__(self, locator=None, search_with_driver=None, parent=None):
         """
         :param locator: instance of Locator
         :param search_with_driver: bool type parameter representing how web element will be found
-        :param mixins: tuple containing classes
         :param parent: instance to which attach current element
         """
         self.web_element = None
@@ -40,16 +37,7 @@ class _CommonElement(object):
             self.search_with_driver = search_with_driver
         self._validate_search_with_driver()
 
-        if mixins:
-            self.mixins = mixins
-        if self.mixins:
-            self.__class__ = type(self.__class__.__name__, self.mixins + (self.__class__,), {})
-
         if parent:
-            # assert not isclass(parent), '`parent` should be instance'
-            # assert isinstance(parent, (Element, Elements)), '`parent` should be instance of Element(s) class'
-            # self._instance = parent
-            # self._owner = parent.__class__
             if isclass(parent):
                 self._owner = parent
             else:
@@ -61,14 +49,13 @@ class _CommonElement(object):
         self._owner = owner
         return self
 
-    def __call__(self):
-        # this feature causes absence of supported code inspection after dot
-        return self.find()
+    def __call__(self, *args, **kwargs):
+        self.find(*args, **kwargs)
+        return self
 
     def _get_finder(self):
         # every element can be found 2 ways: using driver and using founded element
         if isinstance(self._instance, Element) and self.search_with_driver is False:
-            # self._validate_web_element_of_instance()
             if self._instance.web_element:
                 return self._instance.web_element
         return get_driver()
@@ -88,11 +75,6 @@ class _CommonElement(object):
             '`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
                 self.__class__.__name__)
 
-    # def _validate_web_element_of_instance(self):
-    #     if not isinstance(self._instance.web_element, WebElement):
-    #         warn('`web_element` not subclasses `WebElement` in `{}` object at runtime'.format(
-    #             self._instance.__class__.__name__, self._instance), InvalidWebElementInstance)
-
 
 class Element(_CommonElement):
     def find(self):
@@ -111,27 +93,23 @@ class Element(_CommonElement):
             except:
                 raise
         self._validate_web_element()
-        return self
 
     def wait_until_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        finder = self._get_finder()
-        WebDriverWait(finder, timeout, poll_frequency). \
-            until(expected_conditions.visibility_of_element_located(self.locator.get()),
-                  'Searchable by `{}` element with `{}` is not visible during {} seconds'.format(
-                      self.locator,
-                      finder.__class__.__name__,
-                      timeout
-                  ))
+        @with_wait_element(timeout, poll_frequency)
+        def find():
+            Element.find(self)
+            # TODO: can appear here a TimeoutException?
+            assert self.web_element.is_displayed(), \
+                'Web element is not visible during {} seconds'.format(timeout.total_seconds())
+        find()
 
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        finder = self._get_finder()
-        WebDriverWait(finder, timeout, poll_frequency). \
-            until(expected_conditions.invisibility_of_element_located(self.locator.get()),
-                  'Searchable by `{}` element with `{}` is still visible during {} seconds'.format(
-                      self.locator,
-                      finder.__class__.__name__,
-                      timeout
-                  ))
+        @with_wait_element(timeout, poll_frequency)
+        def find():
+            Element.find(self)
+            assert not self.web_element.is_displayed(), \
+                'Web element s not visible during {} seconds'.format(timeout.total_seconds())
+        find()
 
     def get_locators(self):
         pass
@@ -143,15 +121,12 @@ class Elements(_CommonElement):
     access found elements through `self.elements` list
     """
     base_class = None
-    base_class_mixins = None
 
-    def __init__(self, locator=None, base_class=None, search_with_driver=None, mixins=None, base_class_mixins=None):
-        super(Elements, self).__init__(locator, search_with_driver, mixins)
+    def __init__(self, locator=None, base_class=None, search_with_driver=None):
+        super().__init__(locator, search_with_driver)
         self.elements = []
         if base_class:
             self.base_class = base_class
-        if base_class_mixins:
-            self.base_class_mixins = base_class_mixins
 
     def find(self):
         finder = self._get_finder()
@@ -171,21 +146,13 @@ class Elements(_CommonElement):
         for web_element in web_elements:
             element = web_element
             element.web_element = copy(web_element)
-            if self.base_class_mixins:
-                element.__class__ = type(self.base_class.__name__, (self.base_class,) + self.base_class_mixins, {})
-            else:
-                element.__class__ = self.base_class
+            element.__class__ = self.base_class
             element._instance = self
             element._owner = self.__class__
-            # i expect that locator can be assigned at runtime
-            # element.locator = None
-            # element.find = None
             self.elements.append(element)
 
-        return self
-
     def wait_until_all_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        pass
+        map(lambda element: element.wait_until_visible(timeout, poll_frequency), self.elements)
 
     def wait_until_all_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
-        pass
+        map(lambda element: element.wait_until_invisible(timeout, poll_frequency), self.elements)
