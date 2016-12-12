@@ -1,6 +1,6 @@
 # autoui
 
-[![Build Status](https://travis-ci.org/alex-klimovich/autoui.svg?branch=master)](https://travis-ci.org/alex-klimovich/autoui)
+[![Build Status](https://travis-ci.org/aliaksandr-klimovich/autoui.svg?branch=master)](https://travis-ci.org/aliaksandr-klimovich/autoui)
 
 Web site automation testing framework.
 
