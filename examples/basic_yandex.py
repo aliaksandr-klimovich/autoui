@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from autoui.base_page import BasePage
 from autoui.elements.simple import Button, Input
-from autoui.elements.vdelement import VDElement
+from autoui.elements.element import VDElement
 from autoui.locators import XPath, ID
 
 

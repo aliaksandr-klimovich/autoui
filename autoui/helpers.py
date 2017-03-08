@@ -28,7 +28,7 @@ class Property(metaclass=PropertyMeta):
             setattr(cls, k, v)
 
 
-def perform_a_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError)):
+def perform_a_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError, )):
     """
     Description:
         Decorator for cycling execution of function that uses assertions multiple times
