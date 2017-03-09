@@ -49,8 +49,11 @@ class _CommonElement:
         self._owner = owner
         return self
 
+    def find(self):
+        raise NotImplementedError
+
     def __call__(self, *args, **kwargs):
-        self.find(*args, **kwargs)
+        self.find()
         return self
 
     def _get_finder(self):
