@@ -104,6 +104,7 @@ class Element(_CommonElement):
             # TODO: can appear here a TimeoutException?
             assert self.web_element.is_displayed(), \
                 'Web element is not visible during {} seconds'.format(timeout.total_seconds())
+
         find()
 
     def wait_until_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
@@ -112,6 +113,7 @@ class Element(_CommonElement):
             Element.find(self)
             assert not self.web_element.is_displayed(), \
                 'Web element s not visible during {} seconds'.format(timeout.total_seconds())
+
         find()
 
     def get_locators(self):

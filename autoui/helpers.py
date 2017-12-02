@@ -28,7 +28,7 @@ class Property(metaclass=PropertyMeta):
             setattr(cls, k, v)
 
 
-def perform_a_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError, )):
+def perform_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError,)):
     """
     Description:
         Decorator for cycling execution of function that uses assertions multiple times
@@ -38,7 +38,7 @@ def perform_a_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError
         :param exceptions: exceptions to ignore to continue cycling
 
     Usage:
-        @perform_a_delayed_cycle(timedelta(minutes=3), timedelta(seconds=30))
+        @perform_delayed_cycle(timedelta(minutes=3), timedelta(seconds=30))
         def function():
             some_bool_arg = get_some_bool_arg()
             assert some_bool_arg is True
@@ -65,9 +65,13 @@ def perform_a_delayed_cycle(total_delay, sleep_delay, exceptions=(AssertionError
                     sleep(sleep_delay.total_seconds())
             else:
                 return function(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
-with_wait_element = partial(perform_a_delayed_cycle,
-                            exceptions=(AssertionError, NoSuchElementException, StaleElementReferenceException))
+with_wait_element = partial(perform_delayed_cycle,
+                            exceptions=(AssertionError,
+                                        NoSuchElementException,
+                                        StaleElementReferenceException))

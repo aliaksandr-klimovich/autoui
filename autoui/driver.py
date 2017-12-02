@@ -5,17 +5,17 @@ def get_driver():
     """
     Simple singleton to obtain web driver.
     For now the support of this functionality is not a goal.
-    :return: instance of Chrome driver
+    :return: instance of Safari driver
     """
-    if hasattr(get_driver, 'driver') and get_driver.driver is not None:
+    if hasattr(get_driver, '_driver') and get_driver._driver is not None:
         try:
-            getattr(get_driver.driver, 'title')
+            getattr(get_driver._driver, 'title')
         except AttributeError:
             try:
-                get_driver.driver.quit()
+                get_driver._driver.quit()
             except:
-                pass
+                raise
         else:
-            return get_driver.driver
-    get_driver.driver = webdriver.Chrome()
-    return get_driver.driver
+            return get_driver._driver
+    get_driver._driver = webdriver.Safari()
+    return get_driver._driver
