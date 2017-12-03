@@ -433,9 +433,8 @@ class TestElements(BaseTestCase):
 
         page = Page()
         btns = page.buttons()
-        eq_(btns.elements, [self.web_element, ])
-        assert isinstance(btns.elements[0], Button)
-        assert isinstance(btns, Buttons)
+        self.assertIsInstance(btns.elements[0], Button)
+        self.assertIsInstance(btns, Buttons)
         eq_(btns.elements[0]._owner, Buttons)
         self.driver.find_elements.assert_called_once_with(*ID('1').get())
 
