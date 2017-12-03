@@ -101,7 +101,7 @@ class Element(_CommonElement):
         @with_wait_element(timeout, poll_frequency)
         def find():
             Element.find(self)
-            # TODO: can appear here a TimeoutException?
+            # TODO: Can a TimeoutException appear here?
             assert self.web_element.is_displayed(), \
                 'Web element is not visible during {} seconds'.format(timeout.total_seconds())
 
@@ -147,13 +147,15 @@ class Elements(_CommonElement):
                 web_elements = finder.find_elements(*self.locator.get())
             except:
                 raise
+
+        # remove elements from previous sessions
+        self.elements = []
+
         # wrap web_elements
         for web_element in web_elements:
-            element = web_element
-            element.web_element = copy(web_element)
-            element.__class__ = self.base_class
-            element._instance = self
-            element._owner = self.__class__
+            element = self.base_class(locator=self.base_class.locator or self.locator,
+                                      parent=self)
+            element.web_element = web_element
             self.elements.append(element)
 
     def wait_until_all_visible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
@@ -161,3 +163,6 @@ class Elements(_CommonElement):
 
     def wait_until_all_invisible(self, timeout=Config.TIMEOUT, poll_frequency=Config.POLL_FREQUENCY):
         map(lambda element: element.wait_until_invisible(timeout, poll_frequency), self.elements)
+
+    def __getitem__(self, item):
+        return self.elements[item]

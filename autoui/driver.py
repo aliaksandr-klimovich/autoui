@@ -17,5 +17,5 @@ def get_driver():
                 raise
         else:
             return get_driver._driver
-    get_driver._driver = webdriver.Safari()
+    get_driver._driver = webdriver.Chrome()
     return get_driver._driver

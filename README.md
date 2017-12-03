@@ -54,13 +54,13 @@ webdriver.
 ### Feature 2: Default locator
 You can use default locator to locate elements. Write it as a property of class that inherit `Element`.
 ```python
-class CustomElement(Element):
+class Link(Element):
     locator = XPath('.//a')
 ```
 And and you don't need to write locator every time you want to put this custom element in your class.
 ```python
 class Page(BasePage):
-    custom_element = CustomElement()
+    link = Link()
 ```
 
 ### Feature 3: Element can be located in/with other element

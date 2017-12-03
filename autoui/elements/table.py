@@ -26,7 +26,14 @@ class Tds(Elements):
 
 
 class Tr(Element):
-    tds = Tds()
+    # As the tr element can have multiple td elements and
+    # each tr element is part of trs object, it will not be initialized
+    # as class property, so, need to create instances of tr
+    # class in the __init__ method.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tds = Tds()
+        self.tds.__get__(self, self.__class__)
 
 
 class Trs(Elements):
@@ -44,18 +51,31 @@ class Table(Element):
     tbody = Tbody()
 
     def find(self):
-        """
-        find all elements to use them later in methods
-        """
+        # find all elements to use them later in methods
         super().find()
         self.thead().ths()
-        map(lambda element: element.tds(), self.tbody().trs().elements)
+        self.tbody().trs()
+        for tr in self.tbody.trs:
+            tr.tds()
         return self
 
     def get_headers(self):
-        return self.thead.ths.elements
+        headers = self.thead.ths.elements
+        return headers
 
     def get_headers_str(self):
-        return [th.web_element.text for th in self.thead.ths.elements]
+        ths = []
+        for th in self.thead.ths.elements:
+            text = th.web_element.text
+            ths.append(text)
+        return ths
 
-    # TODO: implement more functionality
+    def get_body_str(self):
+        trs = []
+        for tr in self.tbody.trs.elements:
+            tds = []
+            for td in tr.tds.elements:
+                text = td.web_element.text
+                tds.append(text)
+            trs.append(tds)
+        return trs

@@ -124,6 +124,7 @@ class TestElement(BaseTestCase):
         section2 = page.section2()
         section1 = section2.section1()
         assert isinstance(section1, Section1)
+        eq_(section1._owner, Section2)
         assert section1.web_element is self.web_element
         self.driver.find_element.assert_has_calls([
             call('id', 'section2'),
@@ -431,10 +432,11 @@ class TestElements(BaseTestCase):
             buttons = Buttons()
 
         page = Page()
-        s = page.buttons()
-        eq_(s.elements, [self.web_element, ])
-        assert isinstance(s.elements[0], Button)
-        assert isinstance(s, Buttons)
+        btns = page.buttons()
+        eq_(btns.elements, [self.web_element, ])
+        assert isinstance(btns.elements[0], Button)
+        assert isinstance(btns, Buttons)
+        eq_(btns.elements[0]._owner, Buttons)
         self.driver.find_elements.assert_called_once_with(*ID('1').get())
 
 
