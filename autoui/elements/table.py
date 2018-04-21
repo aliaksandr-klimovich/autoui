@@ -26,14 +26,7 @@ class Tds(Elements):
 
 
 class Tr(Element):
-    # As the tr element can have multiple td elements and
-    # each tr element is part of trs object, it will not be initialized
-    # as class property, so, need to create instances of tr
-    # class in the __init__ method.
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tds = Tds()
-        self.tds.__get__(self, self.__class__)
+    tds = Tds()
 
 
 class Trs(Elements):

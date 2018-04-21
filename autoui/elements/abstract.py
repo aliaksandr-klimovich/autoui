@@ -127,11 +127,12 @@ class Elements(_CommonElement):
     """
     base_class = None
 
-    def __init__(self, locator=None, base_class=None, search_with_driver=None):
+    def __init__(self, locator=None, base_class=None, search_with_driver=None, base_class_kwargs=None):
         super().__init__(locator, search_with_driver)
         self.elements = []
         if base_class:
             self.base_class = base_class
+        self.base_class_kwargs = base_class_kwargs
 
     def find(self):
         finder = self._get_finder()
@@ -155,6 +156,15 @@ class Elements(_CommonElement):
         for web_element in web_elements:
             element = self.base_class(locator=self.base_class.locator or self.locator,
                                       parent=self)
+            for pr in element.__class__.__dict__:
+                instance = getattr(element, pr, None)
+                if isinstance(instance, Elements):
+                    if self.base_class_kwargs is None:
+                        instance = instance.__class__()  # __init__ of `Elements` subclass is empty!
+                    else:
+                        instance = instance.__class__(**self.base_class_kwargs)
+                    instance.__get__(element, element.__class__)
+                    setattr(element, pr, instance)
             element.web_element = web_element
             self.elements.append(element)
 
